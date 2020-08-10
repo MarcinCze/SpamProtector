@@ -1,7 +1,7 @@
 <?php
 namespace SpamProtector;
 
-require_once 'Config.php';
+require_once __DIR__ . '/Config.php';
 
 class Rules
 {
@@ -9,9 +9,10 @@ class Rules
 	private $rulesSender;
 	private $rulesDomain;
 	
-	function __construct() 
+	function __construct($loadRules = true) 
 	{ 
-		$this->LoadRules();
+		if ($loadRules)
+			$this->LoadRules();
 	}
 	
 	function isOnSenderBlacklist($sender)
@@ -36,6 +37,90 @@ class Rules
 		}
 				
 		return false;
+	}
+	
+	function getSubjects()
+	{
+		$this->loadRules();
+		return $this->rulesSubject;
+	}
+	
+	function getSenders()
+	{
+		$this->loadRules();
+		return $this->rulesSender;
+	}
+	
+	function getDomains()
+	{
+		$this->loadRules();
+		return $this->rulesDomain;
+	}
+	
+	function add($type, $value)
+	{
+		$servername = \SpamProtector\Configuration::Database['server'];
+		$username = \SpamProtector\Configuration::Database['username'];
+		$password = \SpamProtector\Configuration::Database['password'];
+		$dbname = \SpamProtector\Configuration::Database['db'];
+
+		$conn = new \mysqli($servername, $username, $password, $dbname);
+		$conn->set_charset("utf8");
+		
+		if ($conn->connect_error) {
+		  die("Connection failed: " . $conn->connect_error);
+		}
+
+		$stmt = $conn->prepare("INSERT INTO spamprotector_rules (field, value, isActive) VALUES (?, ?, 1)");
+		$stmt->bind_param("ss", $type, $value);
+		$stmt->execute();
+		
+		$stmt->close();
+		$conn->close();
+	}
+	
+	function delete($id)
+	{
+		$servername = \SpamProtector\Configuration::Database['server'];
+		$username = \SpamProtector\Configuration::Database['username'];
+		$password = \SpamProtector\Configuration::Database['password'];
+		$dbname = \SpamProtector\Configuration::Database['db'];
+
+		$conn = new \mysqli($servername, $username, $password, $dbname);
+		$conn->set_charset("utf8");
+		
+		if ($conn->connect_error) {
+		  die("Connection failed: " . $conn->connect_error);
+		}
+
+		$stmt = $conn->prepare("DELETE FROM spamprotector_rules WHERE id = ?");
+		$stmt->bind_param("i", $id);
+		$stmt->execute();
+		
+		$stmt->close();
+		$conn->close();
+	}
+	
+	function edit($id, $value, $isActive)
+	{
+		$servername = \SpamProtector\Configuration::Database['server'];
+		$username = \SpamProtector\Configuration::Database['username'];
+		$password = \SpamProtector\Configuration::Database['password'];
+		$dbname = \SpamProtector\Configuration::Database['db'];
+
+		$conn = new \mysqli($servername, $username, $password, $dbname);
+		$conn->set_charset("utf8");
+		
+		if ($conn->connect_error) {
+		  die("Connection failed: " . $conn->connect_error);
+		}
+
+		$stmt = $conn->prepare("UPDATE spamprotector_rules SET value = ?, isActive = ? WHERE id = ?");
+		$stmt->bind_param("sii", $value, $isActive, $id);
+		$stmt->execute();
+		
+		$stmt->close();
+		$conn->close();
 	}
 	
 	private function LoadRules() 

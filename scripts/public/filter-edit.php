@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST')
 
 $data = json_decode(file_get_contents('php://input'), true);
 
-if (!isset($data['type']) || !isset($data['value']))
+if (!isset($data['id']) || !isset($data['value']) || !isset($data['isActive']))
 {
 	http_response_code(403);
 	exit;
@@ -26,7 +26,7 @@ if (!isset($data['type']) || !isset($data['value']))
 
 try
 {
-	$rules->add($data['type'], $data['value']);
+	$rules->edit($data['id'], $data['value'], $data['isActive']);
 }
 catch (\Exception $ex)
 {
