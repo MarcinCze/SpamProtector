@@ -7,6 +7,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HeaderComponent implements OnInit {
 
+  public appName: string = 'SpamProtector';
+
   constructor() { }
 
   ngOnInit(): void {
