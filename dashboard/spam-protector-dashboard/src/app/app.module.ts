@@ -57,6 +57,9 @@ import { MatTreeModule } from '@angular/material/tree';
 import { RuleValuePipe } from './pipes/rule-value.pipe';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 
+// Interceptors
+import { httpInterceptorProviders } from './interceptors/index';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -118,7 +121,7 @@ import { ConfirmationDialogComponent } from './components/confirmation-dialog/co
     MatTooltipModule,
     MatTreeModule
   ],
-  providers: [],
+  providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
