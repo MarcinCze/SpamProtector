@@ -10,10 +10,10 @@
       <p>Times used: {{rule.used}}</p>
     </mat-card-content>
     <mat-card-actions>
-      <button mat-icon-button color="primary" aria-label="Example icon button with a home icon">
+      <button mat-icon-button color="primary" aria-label="Edit rule" (click)="onEditClick(rule.id)">
         <mat-icon>edit</mat-icon>
       </button>
-      <button mat-icon-button color="warn" aria-label="Example icon button with a heart icon" style="margin-left: 2em;">
+      <button mat-icon-button color="warn" aria-label="Remove rule" style="margin-left: 2em;" (click)="onDeleteClick(rule.id)">
         <mat-icon>delete</mat-icon>
       </button>
     </mat-card-actions>

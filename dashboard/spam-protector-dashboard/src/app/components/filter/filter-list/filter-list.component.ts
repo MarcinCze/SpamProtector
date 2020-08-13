@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-filter-list',
@@ -11,7 +12,7 @@ export class FilterListComponent implements OnInit {
 
   public avatarClass: string;
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     switch (this.rulesType) {
@@ -25,5 +26,14 @@ export class FilterListComponent implements OnInit {
         this.avatarClass = 'sender';
         break;
     }
+  }
+
+  onEditClick(id: number) {
+    console.log('onEditClick: ', id);
+    this.router.navigateByUrl(`/edit/${id}`);
+  }
+
+  onDeleteClick(id: number) {
+    console.log('onDeleteClick: ', id);
   }
 }
