@@ -1,1 +1,35 @@
-<p>filter-add works!</p>
+<div>
+
+  <form [formGroup]="ruleForm" (ngSubmit)="onRuleSubmit()">
+
+    <div class="control-container">
+      <mat-form-field appearance="fill" style="width:85vw">
+        <mat-label>Rule type</mat-label>
+        <mat-select [formControl]="type">
+          <mat-option *ngFor="let type of ruleType" [value]="type['value']">
+            {{type['viewValue']}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="control-container">
+      <mat-form-field appearance="fill" style="width:85vw">
+        <mat-label>Value</mat-label>
+        <input matInput [formControl]="value" required>
+        <mat-error *ngIf="value.invalid">Value is invalid</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="control-container">
+      <mat-checkbox [formControl]="isActive">Is active?</mat-checkbox>
+    </div>
+
+    <div style="margin-top: 2em;">
+      <button type="submit" mat-raised-button color="primary" style="margin-right: 1em;"
+        [disabled]="ruleForm.invalid">Save</button>
+      <button type="button" mat-raised-button color="primary" (click)="onCancelClick()">Cancel</button>
+    </div>
+  </form>
+
+</div>

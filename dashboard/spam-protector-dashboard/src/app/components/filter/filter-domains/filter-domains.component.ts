@@ -21,4 +21,16 @@ export class FilterDomainsComponent implements OnInit {
     });
   }
 
+  onDeleteClick(id: number): void {
+    console.log('Rule delete clicked', id);
+
+    this.service.delete(id).subscribe(response => {
+      console.log(response);
+      this.service.getDomains().subscribe(response => {
+        this.domains = response;
+        console.log('Domains: ', response);
+      });
+    });
+  }
+
 }

@@ -21,4 +21,15 @@ export class FilterSendersComponent implements OnInit {
     });
   }
 
+  onDeleteClick(id: number): void {
+    console.log('Rule delete clicked', id);
+
+    this.service.delete(id).subscribe(response => {
+      console.log(response);
+      this.service.getSenders().subscribe(response => {
+        this.senders = response;
+        console.log('Senders: ', response);
+      });
+    });
+  }
 }

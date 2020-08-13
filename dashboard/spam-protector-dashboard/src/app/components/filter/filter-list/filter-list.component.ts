@@ -1,5 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-filter-list',
@@ -9,10 +11,11 @@ import { Router } from '@angular/router';
 export class FilterListComponent implements OnInit {
   @Input() rules;
   @Input() rulesType;
+  @Output() clickDelete = new EventEmitter<number>();
 
   public avatarClass: string;
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, public dialog: MatDialog) { }
 
   ngOnInit(): void {
     switch (this.rulesType) {
@@ -34,6 +37,13 @@ export class FilterListComponent implements OnInit {
   }
 
   onDeleteClick(id: number) {
-    console.log('onDeleteClick: ', id);
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: ${result}`);
+      if (result === true) {
+        this.clickDelete.emit(id);
+      }
+    });
   }
 }

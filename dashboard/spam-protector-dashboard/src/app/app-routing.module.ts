@@ -11,9 +11,6 @@ import { LoginComponent } from './components/login/login.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
-  { path: 'senders', component: FilterSendersComponent, canActivate: [AuthGuard] },
-  { path: 'subjects', component: FilterSubjectsComponent, canActivate: [AuthGuard] },
-  { path: 'domains', component: FilterDomainsComponent, canActivate: [AuthGuard] },
   { path: 'add', component: FilterAddComponent, canActivate: [AuthGuard] },
   { path: 'edit/:id', component: FilterEditComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },

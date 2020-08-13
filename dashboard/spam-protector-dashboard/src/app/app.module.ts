@@ -55,6 +55,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { RuleValuePipe } from './pipes/rule-value.pipe';
+import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 
 @NgModule({
   declarations: [
@@ -68,7 +69,8 @@ import { RuleValuePipe } from './pipes/rule-value.pipe';
     FilterListComponent,
     HomeComponent,
     HeaderComponent,
-    RuleValuePipe
+    RuleValuePipe,
+    ConfirmationDialogComponent
   ],
   imports: [
     BrowserModule,

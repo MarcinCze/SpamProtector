@@ -21,4 +21,16 @@ export class FilterSubjectsComponent implements OnInit {
     });
   }
 
+  onDeleteClick(id: number): void {
+    console.log('Rule delete clicked', id);
+
+    this.service.delete(id).subscribe(response => {
+      console.log(response);
+      this.service.getSubjects().subscribe(response => {
+        this.subjects = response;
+        console.log('Subjects: ', response);
+      });
+    });
+  }
+
 }
