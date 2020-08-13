@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { FilterService } from '../../../services/filter.service';
+import { Filter } from 'src/app/models/filter';
 
 @Component({
   selector: 'app-filter-senders',
@@ -7,9 +9,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class FilterSendersComponent implements OnInit {
 
-  constructor() { }
+  public senders: Filter[];
+  public type: string = 'senders';
+
+  constructor(private service: FilterService) { }
 
   ngOnInit(): void {
+    this.service.getSenders().subscribe(response => {
+      this.senders = response;
+      console.log('Senders: ', response);
+    });
   }
 
 }

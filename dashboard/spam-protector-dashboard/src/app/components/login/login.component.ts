@@ -23,6 +23,6 @@ export class LoginComponent implements OnInit {
   }
 
   onLoginSubmit() {
-
+    console.log("On login");
   }
 }

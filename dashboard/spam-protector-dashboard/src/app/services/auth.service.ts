@@ -8,6 +8,6 @@ export class AuthService {
   constructor() { }
 
   public isLogged() : boolean {
-    return false;
+    return true;
   }
 }

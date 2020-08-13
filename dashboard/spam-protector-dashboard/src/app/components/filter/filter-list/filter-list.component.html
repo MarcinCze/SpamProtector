@@ -1,1 +1,22 @@
-<p>filter-list works!</p>
+<div class="card-container">
+
+  <mat-card class="card" *ngFor='let rule of rules'>
+    <mat-card-header>
+      <div mat-card-avatar class="header-image" [ngClass]="avatarClass != null ? avatarClass : ''"></div>
+      <mat-card-title>Rule no. {{rule.id}}</mat-card-title>
+      <mat-card-subtitle>{{rule.value | ruleValue}}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Times used: {{rule.used}}</p>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-icon-button color="primary" aria-label="Example icon button with a home icon">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" aria-label="Example icon button with a heart icon" style="margin-left: 2em;">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+</div>

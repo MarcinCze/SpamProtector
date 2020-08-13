@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -13,7 +14,6 @@ import { LoginComponent } from './components/login/login.component';
 import { FilterSubjectsComponent } from './components/filter/filter-subjects/filter-subjects.component';
 import { FilterSendersComponent } from './components/filter/filter-senders/filter-senders.component';
 import { FilterDomainsComponent } from './components/filter/filter-domains/filter-domains.component';
-import { FilterItemComponent } from './components/filter/filter-item/filter-item.component';
 import { FilterAddComponent } from './components/filter/filter-add/filter-add.component';
 import { FilterEditComponent } from './components/filter/filter-edit/filter-edit.component';
 import { FilterListComponent } from './components/filter/filter-list/filter-list.component';
@@ -54,6 +54,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
+import { RuleValuePipe } from './pipes/rule-value.pipe';
 
 @NgModule({
   declarations: [
@@ -62,18 +63,19 @@ import { MatTreeModule } from '@angular/material/tree';
     FilterSubjectsComponent,
     FilterSendersComponent,
     FilterDomainsComponent,
-    FilterItemComponent,
     FilterAddComponent,
     FilterEditComponent,
     FilterListComponent,
     HomeComponent,
-    HeaderComponent
+    HeaderComponent,
+    RuleValuePipe
   ],
   imports: [
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
     AppRoutingModule,
+    HttpClientModule,
     BrowserAnimationsModule,
     StoreModule.forRoot({}, {}),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),

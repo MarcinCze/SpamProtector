@@ -1,0 +1,29 @@
+.card-container {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  margin-bottom: 1em;
+  margin-left: 1em;
+  margin-right: 1em;
+  max-width: 300px;
+}
+
+.header-image {
+  background-size: cover;
+}
+
+.header-image.sender {
+  background-image: url('/assets/Spike_Lee-256.png');
+}
+
+.header-image.domain {
+  background-image: url('/assets/Email-At-Symbol-256.png');
+}
+
+.header-image.subject {
+  background-image: url('/assets/Text edit-256.png');
+}
