@@ -1,4 +1,7 @@
 <mat-toolbar>
+  <button mat-icon-button>
+    <mat-icon (click)="onHomeClick()">email</mat-icon>
+  </button>
   <span>{{appName}}</span>
   <span class="right-align"></span>
   <button mat-icon-button (click)="onLogoutClick()" *ngIf="authService.isAuthenticated()">

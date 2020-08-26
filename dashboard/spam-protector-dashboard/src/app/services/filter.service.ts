@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Filter } from '../models/filter';
+import { Stats } from '../models/stats';
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +36,13 @@ export class FilterService {
 
   delete(id: number): Observable<HttpResponse<any>> {
     return this.http.post<any>(`${this.srvUrl}/filter-delete.php`, { id: id }, { headers: this.headers, observe: 'response' });
+  }
+
+  getStats(): Observable<Stats> {
+    return this.http.post<any>(`${this.srvUrl}/stats.php`, {}, { headers: this.headers })
+    .pipe(
+      map(response => response.details)
+    );
   }
 
 }

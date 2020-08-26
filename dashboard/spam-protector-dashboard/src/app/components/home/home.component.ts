@@ -17,4 +17,8 @@ export class HomeComponent implements OnInit {
     this.router.navigateByUrl('/add');
   }
 
+  onBtnStatsClick(): void {
+    this.router.navigateByUrl('/stats');
+  }
+
 }

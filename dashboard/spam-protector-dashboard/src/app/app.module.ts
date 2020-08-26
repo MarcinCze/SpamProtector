@@ -19,6 +19,8 @@ import { FilterEditComponent } from './components/filter/filter-edit/filter-edit
 import { FilterListComponent } from './components/filter/filter-list/filter-list.component';
 import { HomeComponent } from './components/home/home.component';
 import { HeaderComponent } from './components/header/header.component';
+import { StatisticsComponent } from './components/statistics/statistics.component';
+import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -54,11 +56,17 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
+
+// Pipes
 import { RuleValuePipe } from './pipes/rule-value.pipe';
-import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 
 // Interceptors
 import { httpInterceptorProviders } from './interceptors/index';
+
+// Directives
+import { ScriptStatusDirective } from './directives/script-status.directive';
+import { CustomDatePipe } from './pipes/custom-date.pipe';
+import { CustomNumberPipe } from './pipes/custom-number.pipe';
 
 @NgModule({
   declarations: [
@@ -73,7 +81,11 @@ import { httpInterceptorProviders } from './interceptors/index';
     HomeComponent,
     HeaderComponent,
     RuleValuePipe,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    StatisticsComponent,
+    ScriptStatusDirective,
+    CustomDatePipe,
+    CustomNumberPipe
   ],
   imports: [
     BrowserModule,
