@@ -17,21 +17,36 @@ class Rules
 	
 	function isOnSenderBlacklist($sender)
 	{
-		return in_array($sender, $this->rulesSender, false);
+		foreach($this->rulesSender as $rule)
+		{
+			if (stripos($sender, $rule['value']) !== false) 
+			{
+				$this->increaseUsedRuleCounter($rule['id']);
+				return true;
+			}
+		}
 	}
 	
 	function isOnDomainBlacklist($sender)
 	{
 		$domain = substr($sender, strrpos($sender, '@') + 1);
-		return in_array($domain, $this->rulesDomain, false);
+		foreach($this->rulesDomain as $rule)
+		{
+			if (stripos($domain, $rule['value']) !== false) 
+			{
+				$this->increaseUsedRuleCounter($rule['id']);
+				return true;
+			}
+		}
 	}
 	
 	function isOnSubjectBlacklist($subject)
 	{
 		foreach ($this->rulesSubject as $rule)
 		{				
-			if (stripos($subject, $rule) !== false) 
+			if (stripos($subject, $rule['value']) !== false) 
 			{
+				$this->increaseUsedRuleCounter($rule['id']);
 				return true;
 			}
 		}
@@ -140,7 +155,7 @@ class Rules
 		  die("Connection failed: " . $conn->connect_error);
 		}
 
-		$sql = "SELECT field, value FROM spamprotector_rules WHERE isActive = 1";
+		$sql = "SELECT id, field, value, used FROM spamprotector_rules WHERE isActive = 1";
 		$conn->set_charset("utf8");
 		$result = $conn->query($sql);
 
@@ -152,17 +167,17 @@ class Rules
 				{
 					case 'sender':
 					{
-						$this->rulesSender[] = $row['value'];
+						$this->rulesSender[] = array('value' => $row['value'], 'id' => $row['id'], 'used' => $row['used']);
 						break;
 					}
 					case 'subject':
 					{
-						$this->rulesSubject[] = $row['value'];
+						$this->rulesSubject[] = array('value' => $row['value'], 'id' => $row['id'], 'used' => $row['used']);
 						break;
 					}
 					case 'domain':
 					{
-						$this->rulesDomain[] = $row['value'];
+						$this->rulesDomain[] = array('value' => $row['value'], 'id' => $row['id'], 'used' => $row['used']);
 						break;
 					}
 				}
@@ -171,8 +186,34 @@ class Rules
 		
 		$conn->close();
 		
-		// var_dump($this->rulesSender); echo('<br><br><br>'); 
-		// var_dump($this->rulesDomain); echo('<br><br><br>');
-		// var_dump($this->rulesSubject); echo('<br><br><br>');exit;
+		return;
+		
+		echo("<pre>");
+		print_r($this->rulesSender); echo('<br><br><br>'); 
+		print_r($this->rulesDomain); echo('<br><br><br>');
+		print_r($this->rulesSubject); echo('<br><br><br>');
+		echo("</pre>");exit;
+	}
+
+	private function increaseUsedRuleCounter($id)
+	{
+		$servername = \SpamProtector\Configuration::Database['server'];
+		$username = \SpamProtector\Configuration::Database['username'];
+		$password = \SpamProtector\Configuration::Database['password'];
+		$dbname = \SpamProtector\Configuration::Database['db'];
+
+		$conn = new \mysqli($servername, $username, $password, $dbname);
+		$conn->set_charset("utf8");
+		
+		if ($conn->connect_error) {
+		  die("Connection failed: " . $conn->connect_error);
+		}
+
+		$stmt = $conn->prepare("UPDATE spamprotector_rules SET used = used + 1 WHERE id = ?");
+		$stmt->bind_param("i", $id);
+		$stmt->execute();
+		
+		$stmt->close();
+		$conn->close();
 	}
 }

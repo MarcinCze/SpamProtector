@@ -18,6 +18,7 @@ class MainMailbox extends BaseMailbox
 	
 	function detectSpam()
 	{
+		$result = array('mailsMoved' => 0, 'mails' => array());
 		$inbox = imap_open($this->hostname, $this->username, $this->password);
 		$emails = imap_search($inbox, 'ALL');
 
@@ -33,13 +34,17 @@ class MainMailbox extends BaseMailbox
 		
 				if($this->isSpam($from, $subject))
 				{
-					echo('SPAM DETECTED - ' . $from . ' with subject: ' . $subject . '<br><br>');
 					$uid = imap_uid($inbox, $email_number);
 					$movingResult = imap_mail_move($inbox, $uid, 'INBOX/Junk', CP_UID);
 					
-					if(!$movingResult)
+					if($movingResult)
 					{
-						echo('fail to move');
+						$result['mails'][] = array('from' => $from, 'subject' => $subject, 'resolution' => 'MOVED');
+						$result['mailsMoved'] = $result['mailsMoved'] + 1;
+					}
+					else
+					{
+						$result['mails'][] = array('from' => $from, 'subject' => $subject, 'resolution' => 'MOVED FAILURE');
 					}
 				}
 			}
@@ -47,7 +52,12 @@ class MainMailbox extends BaseMailbox
 		
 		imap_expunge($inbox);
 		imap_close($inbox);
-		echo('done');
+		return $result;
+	}
+	
+	function catalogSpam()
+	{
+		return $this->catalogDirectory('/Junk', 'MARCIN');
 	}
 	
 	private function isSpam($sender, $subject)
@@ -70,21 +80,4 @@ class MainMailbox extends BaseMailbox
 		return false;
 	}
 	
-	private function decodeSubject($subject)
-	{
-		$decoded = imap_mime_header_decode($subject);
-		$output = '';
-		
-		if (!isset($decoded))
-		{
-			return $output;
-		}
-			
-		foreach($decoded as $part)
-		{
-			$output = $output . $part->text;
-		}
-			
-		return $output;
-	}
 }

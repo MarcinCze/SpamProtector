@@ -9,6 +9,12 @@ class Configuration
 		'hostname' => '{ssl0.ovh.net:993/imap/ssl}INBOX',
 	);
 	
+	public const SpamMailbox = array(
+		'login' => 'spam@mczernecki.pl',
+		'password' => '4y1UMx2tEd',
+		'hostname' => '{ssl0.ovh.net:993/imap/ssl}INBOX',
+	);
+	
 	public const Database = array(
 		'server' => 'mczernecmain.mysql.db',
 		'db' => 'mczernecmain',

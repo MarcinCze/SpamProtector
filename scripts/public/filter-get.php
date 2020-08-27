@@ -1,5 +1,15 @@
 <?php
 // Filter script is responsible for CRUD of spam filters
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, origin, authorization, accept, client-security-token, host, date, cookie, cookie2');
+
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
+{
+	http_response_code(200);
+	exit;
+}
 
 error_reporting(E_ALL ^ E_DEPRECATED);
 
@@ -38,8 +48,6 @@ switch($data['type'])
 		$output = $rules->getDomains();
 		break;
 }
-
-header('Content-Type: application/json');
 
 if ($output == null)
 {
