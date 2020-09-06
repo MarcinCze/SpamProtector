@@ -1,62 +1,82 @@
 <div id="container-stats">
-  <mat-accordion>
+    <mat-accordion>
 
-    <mat-expansion-panel [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>Scripts</mat-panel-title>
-      </mat-expansion-panel-header>
-      <div class="left-right">
-        <p>Scanning</p>
-        <p class="script-status" [appScriptStatus]="stats?.scripts?.scan">
-          {{stats?.scripts?.scan | date:'d LLL, yyyy @ HH:mm'}}</p>
-      </div>
-      <div class="left-right">
-        <p>Cataloging</p>
-        <p class="script-status" [appScriptStatus]="stats?.scripts?.catalog">
-          {{stats?.scripts?.catalog | date:'d LLL, yyyy @ HH:mm'}}</p>
-      </div>
-    </mat-expansion-panel>
+        <mat-expansion-panel [expanded]="true">
+            <mat-expansion-panel-header>
+                <mat-panel-title>Scripts</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="left-right">
+                <p>Scanning</p>
+                <p class="script-status" [appScriptStatus]="stats?.scripts?.scan">
+                    {{stats?.scripts?.scan | date:'d LLL, yyyy @ HH:mm'}}</p>
+            </div>
+            <div class="left-right">
+                <p>Catalog 1</p>
+                <p class="script-status" [appScriptStatus]="stats?.scripts?.catalogMain">
+                    {{stats?.scripts?.catalogMain | date:'d LLL, yyyy @ HH:mm'}}</p>
+            </div>
+            <div class="left-right">
+                <p>Catalog 2</p>
+                <p class="script-status" [appScriptStatus]="stats?.scripts?.catalogSpam">
+                    {{stats?.scripts?.catalogSpam | date:'d LLL, yyyy @ HH:mm'}}</p>
+            </div>
+            <div class="left-right">
+                <p>Marking</p>
+                <p class="script-status" [appScriptStatus]="stats?.scripts?.markForDelete">
+                    {{stats?.scripts?.markForDelete | date:'d LLL, yyyy @ HH:mm'}}</p>
+            </div>
+            <div class="left-right">
+                <p>Remove 1</p>
+                <p class="script-status" [appScriptStatus]="stats?.scripts?.removeMain">
+                    {{stats?.scripts?.removeMain | date:'d LLL, yyyy @ HH:mm'}}</p>
+            </div>
+            <div class="left-right">
+                <p>Remove 2</p>
+                <p class="script-status" [appScriptStatus]="stats?.scripts?.removeSpam">
+                    {{stats?.scripts?.removeSpam | date:'d LLL, yyyy @ HH:mm'}}</p>
+            </div>
+        </mat-expansion-panel>
 
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>Rules</mat-panel-title>
-      </mat-expansion-panel-header>
-      <div class="left-right">
-        <p>Domains</p>
-        <p><small>count</small> {{stats?.rules?.domain.count | number:'2.0-0'}} | <small>used</small> {{stats?.rules?.domain.used | customNumber}}</p>
-      </div>
-      <div class="left-right">
-        <p>Senders</p>
-        <p><small>count</small> {{stats?.rules?.sender.count | number:'2.0-0'}} | <small>used</small> {{stats?.rules?.sender.used | customNumber}}</p>
-      </div>
-      <div class="left-right">
-        <p>Subjects</p>
-        <p><small>count</small> {{stats?.rules?.subject.count | number:'2.0-0'}} | <small>used</small> {{stats?.rules?.subject.used | customNumber}}
-        </p>
-      </div>
-    </mat-expansion-panel>
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>Rules</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="left-right">
+                <p>Domains</p>
+                <p><small>count</small> {{stats?.rules?.domain.count | number:'2.0-0'}} | <small>used</small> {{stats?.rules?.domain.used | customNumber}}</p>
+            </div>
+            <div class="left-right">
+                <p>Senders</p>
+                <p><small>count</small> {{stats?.rules?.sender.count | number:'2.0-0'}} | <small>used</small> {{stats?.rules?.sender.used | customNumber}}</p>
+            </div>
+            <div class="left-right">
+                <p>Subjects</p>
+                <p><small>count</small> {{stats?.rules?.subject.count | number:'2.0-0'}} | <small>used</small> {{stats?.rules?.subject.used | customNumber}}
+                </p>
+            </div>
+        </mat-expansion-panel>
 
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>Catalog</mat-panel-title>
-      </mat-expansion-panel-header>
-      <div class="left-right">
-        <p>Total entries</p>
-        <p>{{stats?.catalog?.totalEntries}}</p>
-      </div>
-      <div class="left-right">
-        <p>New</p>
-        <p>{{stats?.catalog?.new}}</p>
-      </div>
-      <div class="left-right">
-        <p>Ready to remove</p>
-        <p>{{stats?.catalog?.readyToRemove}}</p>
-      </div>
-      <div class="left-right">
-        <p>Removed</p>
-        <p>{{stats?.catalog?.removed}}</p>
-      </div>
-    </mat-expansion-panel>
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>Catalog</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="left-right">
+                <p>Total entries</p>
+                <p>{{stats?.catalog?.totalEntries}}</p>
+            </div>
+            <div class="left-right">
+                <p>New</p>
+                <p>{{stats?.catalog?.new}}</p>
+            </div>
+            <div class="left-right">
+                <p>Ready to remove</p>
+                <p>{{stats?.catalog?.readyToRemove}}</p>
+            </div>
+            <div class="left-right">
+                <p>Removed</p>
+                <p>{{stats?.catalog?.removed}}</p>
+            </div>
+        </mat-expansion-panel>
 
-  </mat-accordion>
+    </mat-accordion>
 </div>

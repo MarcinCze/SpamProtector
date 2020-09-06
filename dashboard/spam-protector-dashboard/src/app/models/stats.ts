@@ -6,7 +6,11 @@ export class Stats {
 
 export class Scripts {
   scan: string;
-  catalog: string;
+  catalogMain: string;
+  catalogSpam: string;
+  markForDelete: string;
+  removeMain: string;
+  removeSpam: string;
 }
 
 export class Rules {
