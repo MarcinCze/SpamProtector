@@ -9,6 +9,7 @@ header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, origin, authorization, accept, client-security-token, host, date, cookie, cookie2');
 
 require_once __DIR__ . '/../../lib/Report.php';
+require_once __DIR__ . '/../../lib/Settings.php';
 
 // Script start
 $start_time = microtime(true); 
@@ -17,6 +18,9 @@ $output = null;
 
 try 
 {
+	$settings = new \SpamProtector\Settings();
+	$settings->UpdateLastRunMarkForDelete();
+	
 	$report = new \SpamProtector\Report();
 	$result = $report->markForDelete();
 	

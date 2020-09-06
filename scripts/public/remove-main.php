@@ -1,5 +1,5 @@
 <?php
-// Catalog SPAM script is responsible for scanning main mailbox, check spam rules and move spam if detected
+// Remove MAIN
 
 //error_reporting(E_ALL ^ E_DEPRECATED);
 
@@ -8,7 +8,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, origin, authorization, accept, client-security-token, host, date, cookie, cookie2');
 
-require_once __DIR__ . '/../../lib/Mailbox/SpamMailbox.php';
+require_once __DIR__ . '/../../lib/Mailbox/MainMailbox.php';
 require_once __DIR__ . '/../../lib/Settings.php';
 
 // Script start
@@ -19,10 +19,10 @@ $output = null;
 try 
 {
 	$settings = new \SpamProtector\Settings();
-	$settings->UpdateLastRunCatalogSpam();
+	$settings->UpdateLastRunRemoveMain();
 	
-	$spamMailbox = new \SpamProtector\Mailbox\SpamMailbox();
-	$result = $spamMailbox->catalogSpam();
+	$mainMailbox = new \SpamProtector\Mailbox\MainMailbox();
+	$result = $mainMailbox->remove();
 	
 	http_response_code(200);
 	$output = array(

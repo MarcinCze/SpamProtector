@@ -14,10 +14,12 @@ class SpamMailbox extends BaseMailbox
 		$this->hostname = \SpamProtector\Configuration::SpamMailbox['hostname'];
 		$this->username = \SpamProtector\Configuration::SpamMailbox['login'];
 		$this->password = \SpamProtector\Configuration::SpamMailbox['password'];
+		$this->mailboxName = 'SPAM';
+		$this->spamDir = '/';
 	}
 	
 	function catalogSpam()
 	{
-		return $this->catalogDirectory('/', 'SPAM');
+		return $this->catalog();
 	}
 }

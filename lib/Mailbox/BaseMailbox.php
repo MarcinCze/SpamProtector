@@ -8,14 +8,48 @@ abstract class BaseMailbox
 	protected $hostname;
 	protected $username;
 	protected $password;
+	protected $mailboxName;
+	protected $spamDir;
 	
 	function __construct() 
 	{ 
 		
 	}
 	
-	protected function catalogDirectory($directory, $mailbox)
+	function remove()
 	{
+		$idsToRemove = $this->getMailIdsToRemove();
+		$inbox = imap_open($this->hostname . $this->spamDir, $this->username, $this->password);
+		$emails = imap_search($inbox, 'ALL');
+		
+		if($emails) 
+		{				
+			rsort($emails);
+
+			foreach($emails as $email_number) 
+			{
+				$mailUid = imap_uid($inbox, $email_number);
+				foreach($idsToRemove as $id)
+				{
+					if($mailUid == $id['imapUid'])
+					{
+						imap_delete($inbox, $mailUid, FT_UID);
+						$this->saveRemovedOnTime($id['id']);
+					}
+				}
+			}
+			
+			imap_expunge($inbox);
+		}
+		
+		imap_close($inbox);
+	}
+	
+	function catalog()
+	{
+		$directory = $this->spamDir;
+		$mailbox = $this->mailboxName;
+		
 		$result = array('cataloged' => 0);
 		$mailDetails = array();
 		
@@ -126,5 +160,59 @@ abstract class BaseMailbox
 		}
 			
 		return $output;
+	}
+
+	protected function getMailIdsToRemove()
+	{
+		$servername = \SpamProtector\Configuration::Database['server'];
+		$username = \SpamProtector\Configuration::Database['username'];
+		$password = \SpamProtector\Configuration::Database['password'];
+		$dbname = \SpamProtector\Configuration::Database['db'];
+
+		$conn = new \mysqli($servername, $username, $password, $dbname);
+		
+		if ($conn->connect_error) {
+		  throw new \Exception($conn->connect_error);
+		}
+
+		$stmt = $conn->prepare("SELECT id, imapUid FROM spamprotector_mails WHERE mailbox = ? AND removedOn IS NULL AND toBeRemovedOn < NOW() LIMIT " . \SpamProtector\Configuration::RemovePerRequest);
+		$stmt->bind_param("s", $this->mailboxName);
+		$stmt->execute();
+		$result = $stmt->get_result();
+		
+		$mailsToRemove = array();
+		
+		if ($result->num_rows > 0) 
+		{
+			while($row = $result->fetch_assoc()) 
+			{
+				$mailsToRemove[] = $row;
+			}
+		} 
+		
+		$stmt->close();
+		$conn->close();
+		
+		return $mailsToRemove;
+	}
+
+	protected function saveRemovedOnTime($rowId)
+	{
+		$servername = \SpamProtector\Configuration::Database['server'];
+		$username = \SpamProtector\Configuration::Database['username'];
+		$password = \SpamProtector\Configuration::Database['password'];
+		$dbname = \SpamProtector\Configuration::Database['db'];
+
+		$conn = new \mysqli($servername, $username, $password, $dbname);
+		
+		if ($conn->connect_error) {
+		  throw new \Exception($conn->connect_error);
+		}
+
+		$stmt = $conn->prepare("UPDATE spamprotector_mails SET removedOn=NOW() WHERE id=?");
+		$stmt->bind_param("i", $rowId);
+		$stmt->execute();
+		$stmt->close();
+		$conn->close();
 	}
 }

@@ -1,5 +1,5 @@
 <?php
-// Catalog SPAM script is responsible for scanning main mailbox, check spam rules and move spam if detected
+// Remove SPAM
 
 //error_reporting(E_ALL ^ E_DEPRECATED);
 
@@ -19,10 +19,10 @@ $output = null;
 try 
 {
 	$settings = new \SpamProtector\Settings();
-	$settings->UpdateLastRunCatalogSpam();
+	$settings->UpdateLastRunRemoveSpam();
 	
 	$spamMailbox = new \SpamProtector\Mailbox\SpamMailbox();
-	$result = $spamMailbox->catalogSpam();
+	$result = $spamMailbox->remove();
 	
 	http_response_code(200);
 	$output = array(

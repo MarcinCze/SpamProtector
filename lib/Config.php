@@ -3,6 +3,8 @@ namespace SpamProtector;
 
 class Configuration
 {
+	public const RemovePerRequest = 20;
+	
 	public const MainMailbox = array(
 		'login' => 'marcin@mczernecki.pl',
 		'password' => 'htoLMebaHN',

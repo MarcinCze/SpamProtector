@@ -83,7 +83,7 @@ class Rules
 		$conn->set_charset("utf8");
 		
 		if ($conn->connect_error) {
-		  die("Connection failed: " . $conn->connect_error);
+		  throw new \Exception($conn->connect_error);
 		}
 
 		$stmt = $conn->prepare("INSERT INTO spamprotector_rules (field, value, isActive) VALUES (?, ?, 1)");
@@ -105,7 +105,7 @@ class Rules
 		$conn->set_charset("utf8");
 		
 		if ($conn->connect_error) {
-		  die("Connection failed: " . $conn->connect_error);
+		  throw new \Exception($conn->connect_error);
 		}
 
 		$stmt = $conn->prepare("DELETE FROM spamprotector_rules WHERE id = ?");
@@ -127,7 +127,7 @@ class Rules
 		$conn->set_charset("utf8");
 		
 		if ($conn->connect_error) {
-		  die("Connection failed: " . $conn->connect_error);
+		  throw new \Exception($conn->connect_error);
 		}
 
 		$stmt = $conn->prepare("UPDATE spamprotector_rules SET value = ?, isActive = ? WHERE id = ?");
@@ -152,7 +152,7 @@ class Rules
 		$conn = new \mysqli($servername, $username, $password, $dbname);
 		
 		if ($conn->connect_error) {
-		  die("Connection failed: " . $conn->connect_error);
+		  throw new \Exception($conn->connect_error);
 		}
 
 		$sql = "SELECT id, field, value, used FROM spamprotector_rules WHERE isActive = 1";
@@ -206,7 +206,7 @@ class Rules
 		$conn->set_charset("utf8");
 		
 		if ($conn->connect_error) {
-		  die("Connection failed: " . $conn->connect_error);
+		  throw new \Exception($conn->connect_error);
 		}
 
 		$stmt = $conn->prepare("UPDATE spamprotector_rules SET used = used + 1 WHERE id = ?");

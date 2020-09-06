@@ -14,6 +14,8 @@ class MainMailbox extends BaseMailbox
 		$this->hostname = \SpamProtector\Configuration::MainMailbox['hostname'];
 		$this->username = \SpamProtector\Configuration::MainMailbox['login'];
 		$this->password = \SpamProtector\Configuration::MainMailbox['password'];
+		$this->mailboxName = 'MARCIN';
+		$this->spamDir = '/Junk';
 	}
 	
 	function detectSpam()
@@ -57,7 +59,7 @@ class MainMailbox extends BaseMailbox
 	
 	function catalogSpam()
 	{
-		return $this->catalogDirectory('/Junk', 'MARCIN');
+		return $this->catalog();
 	}
 	
 	private function isSpam($sender, $subject)
