@@ -34,7 +34,7 @@ export class ScriptStatusDirective implements OnInit, OnChanges {
     let date = new Date(this.lastRun);
     let now = new Date();
 
-    return this.diffMinutes(now, date) <= 60;
+    return true; //this.diffMinutes(now, date) <= 60;
   }
 
   private setRed(): void {
