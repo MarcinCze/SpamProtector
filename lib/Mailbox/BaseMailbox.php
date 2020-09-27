@@ -18,6 +18,7 @@ abstract class BaseMailbox
 	
 	function remove()
 	{
+		$counter = 0;
 		$idsToRemove = $this->getMailIdsToRemove();
 		$inbox = imap_open($this->hostname . $this->spamDir, $this->username, $this->password);
 		$emails = imap_search($inbox, 'ALL');
@@ -35,6 +36,7 @@ abstract class BaseMailbox
 					{
 						imap_delete($inbox, $mailUid, FT_UID);
 						$this->saveRemovedOnTime($id['id']);
+						$counter++;
 					}
 				}
 			}
@@ -43,6 +45,8 @@ abstract class BaseMailbox
 		}
 		
 		imap_close($inbox);
+		
+		return array('toRemoveFromDatabase' => count($idsToRemove), 'removed' => $counter);
 	}
 	
 	function catalog()
