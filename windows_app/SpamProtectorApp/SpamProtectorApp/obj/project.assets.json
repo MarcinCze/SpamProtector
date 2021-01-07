@@ -1,0 +1,91 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {
+      "SpamProtectorLib/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "compile": {
+          "bin/placeholder/SpamProtectorLib.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SpamProtectorLib.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SpamProtectorLib/1.0.0": {
+      "type": "project",
+      "path": "../SpamProtectorLib/SpamProtectorLib.csproj",
+      "msbuildProject": "../SpamProtectorLib/SpamProtectorLib.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    ".NETCoreApp,Version=v3.1": [
+      "SpamProtectorLib >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\Marcin_Czernecki\\.nuget\\packages\\": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\Marcin_Czernecki\\Desktop\\DevWorkspace\\GitHub_SpamProtector\\windows_app\\SpamProtectorApp\\SpamProtectorApp\\SpamProtectorApp.csproj",
+      "projectName": "SpamProtectorApp",
+      "projectPath": "C:\\Users\\Marcin_Czernecki\\Desktop\\DevWorkspace\\GitHub_SpamProtector\\windows_app\\SpamProtectorApp\\SpamProtectorApp\\SpamProtectorApp.csproj",
+      "packagesPath": "C:\\Users\\Marcin_Czernecki\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Marcin_Czernecki\\Desktop\\DevWorkspace\\GitHub_SpamProtector\\windows_app\\SpamProtectorApp\\SpamProtectorApp\\obj\\",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "C:\\Users\\Marcin_Czernecki\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "netcoreapp3.1"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "projectReferences": {
+            "C:\\Users\\Marcin_Czernecki\\Desktop\\DevWorkspace\\GitHub_SpamProtector\\windows_app\\SpamProtectorApp\\SpamProtectorLib\\SpamProtectorLib.csproj": {
+              "projectPath": "C:\\Users\\Marcin_Czernecki\\Desktop\\DevWorkspace\\GitHub_SpamProtector\\windows_app\\SpamProtectorApp\\SpamProtectorLib\\SpamProtectorLib.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "netcoreapp3.1": {
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          },
+          "Microsoft.WindowsDesktop.App.WindowsForms": {
+            "privateAssets": "none"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.402\\RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}
