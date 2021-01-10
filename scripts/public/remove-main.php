@@ -18,9 +18,6 @@ $output = null;
 
 try 
 {
-	$settings = new \SpamProtector\Settings();
-	$settings->UpdateLastRunRemoveMain();
-	
 	$mainMailbox = new \SpamProtector\Mailbox\MainMailbox();
 	$result = $mainMailbox->remove();
 	
@@ -29,6 +26,9 @@ try
 		'result' => 'SUCCESS',
 		'details' => $result
 	);
+	
+	$settings = new \SpamProtector\Settings();
+	$settings->UpdateLastRunRemoveMain();
 }
 catch (\Exception $e)
 {

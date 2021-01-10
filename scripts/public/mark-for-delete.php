@@ -18,9 +18,6 @@ $output = null;
 
 try 
 {
-	$settings = new \SpamProtector\Settings();
-	$settings->UpdateLastRunMarkForDelete();
-	
 	$report = new \SpamProtector\Report();
 	$result = $report->markForDelete();
 	
@@ -29,6 +26,9 @@ try
 		'result' => 'SUCCESS',
 		'details' => $result
 	);
+	
+	$settings = new \SpamProtector\Settings();
+	$settings->UpdateLastRunMarkForDelete();
 }
 catch (\Exception $e)
 {

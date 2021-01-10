@@ -151,8 +151,9 @@ class Rules
 
 		$conn = new \mysqli($servername, $username, $password, $dbname);
 		
-		if ($conn->connect_error) {
-		  throw new \Exception($conn->connect_error);
+		if ($conn->connect_error) 
+		{
+			throw new \Exception($conn->connect_error);
 		}
 
 		$sql = "SELECT id, field, value, used FROM spamprotector_rules WHERE isActive = 1";

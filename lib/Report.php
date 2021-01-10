@@ -47,7 +47,7 @@ class Report
 	private function SendMail($mailsForRemoval)
 	{
 		// Recipients
-		$to = 'mar.czernecki@gmail.com';
+		$to = 'marcin@mczernecki.pl';
 
 		// Subject
 		$subject = 'SpamProtector Report';

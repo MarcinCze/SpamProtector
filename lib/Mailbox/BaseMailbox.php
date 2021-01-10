@@ -20,25 +20,20 @@ abstract class BaseMailbox
 	{
 		$counter = 0;
 		$idsToRemove = $this->getMailIdsToRemove();
+
 		$inbox = imap_open($this->hostname . $this->spamDir, $this->username, $this->password);
-		$emails = imap_search($inbox, 'ALL');
+		$date = date("j-M-Y", strtotime("-7 days"));
+		$emails = imap_search($inbox, 'SINCE ' . $date);
 		
 		if($emails) 
 		{				
 			rsort($emails);
 
-			foreach($emails as $email_number) 
+			foreach($idsToRemove as $id)
 			{
-				$mailUid = imap_uid($inbox, $email_number);
-				foreach($idsToRemove as $id)
-				{
-					if($mailUid == $id['imapUid'])
-					{
-						imap_delete($inbox, $mailUid, FT_UID);
-						$this->saveRemovedOnTime($id['id']);
-						$counter++;
-					}
-				}
+				imap_delete($inbox, $id['imapUid'], FT_UID);
+				$this->saveRemovedOnTime($id['id']);
+				$counter++;
 			}
 			
 			imap_expunge($inbox);
@@ -58,7 +53,8 @@ abstract class BaseMailbox
 		$mailDetails = array();
 		
 		$inbox = imap_open($this->hostname . $directory, $this->username, $this->password);
-		$emails = imap_search($inbox, 'ALL');
+		$date = date("j-M-Y", strtotime("-2 days"));
+		$emails = imap_search($inbox, 'SINCE ' . $date);
 		
 		if($emails) 
 		{				
@@ -66,7 +62,7 @@ abstract class BaseMailbox
 
 			foreach($emails as $email_number) 
 			{
-				$overview = imap_header($inbox, $email_number, 0);
+				$overview = imap_headerinfo($inbox, $email_number, 0);
 				
 				$date = new \DateTime();
 				$date->setTimestamp($overview->udate);
@@ -91,9 +87,8 @@ abstract class BaseMailbox
 		{
 			foreach ($mailDetails as $mail)
 			{
-				if(!$this->isAlreadyInCatalog($mail['mailbox'], $mail['uid'], $mail['sentDt'], $mail['from'], $mail['to']))
+				if($this->saveCatalogEntry($mail['mailbox'], $mail['uid'], $mail['sentDt'], $mail['from'], $mail['to'], $mail['subject'], $mail['content']))
 				{
-					$this->saveCatalogEntry($mail['mailbox'], $mail['uid'], $mail['sentDt'], $mail['from'], $mail['to'], $mail['subject'], $mail['content']);
 					$result['cataloged'] = $result['cataloged'] + 1;
 				}
 			}
@@ -115,42 +110,29 @@ abstract class BaseMailbox
 		if ($conn->connect_error) {
 			throw new \Exception($conn->connect_error);
 		}
-
-		$stmt = $conn->prepare("INSERT INTO spamprotector_mails (mailbox, imapUid, sentDateTime, sender, recipient, subject, content, catalogedOn, toBeRemovedOn, removedOn) 
-								VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NULL, NULL)"); 
-		$stmt->bind_param("sisssss", $mailbox, $uid, $sentDt, $sender, $recipient, $subject, $content);
-		$stmt->execute();
 		
-		$stmt->close();
-		$conn->close();
-	}
-	
-	protected function isAlreadyInCatalog($mailbox, $uid, $sentDt, $sender, $recipient)
-	{
-		$servername = \SpamProtector\Configuration::Database['server'];
-		$username = \SpamProtector\Configuration::Database['username'];
-		$password = \SpamProtector\Configuration::Database['password'];
-		$dbname = \SpamProtector\Configuration::Database['db'];
-
-		$conn = new \mysqli($servername, $username, $password, $dbname);
-		
-		if ($conn->connect_error) {
-		  throw new \Exception($conn->connect_error);
-		}
-
 		$stmt = $conn->prepare("SELECT id FROM spamprotector_mails WHERE mailbox = ? AND imapUid = ? AND sentDateTime = ? AND sender = ? AND recipient = ?");
 		$stmt->bind_param("sisss", $mailbox, $uid, $sentDt, $sender, $recipient);
 		$stmt->execute();
 		$result = $stmt->get_result();
 		$exist = $result->num_rows > 0;
 		$stmt->close();
-		// var_dump($uid);  var_dump($exist); exit;
-		return $exist;
+		
+		if ($exist) return false;
+
+		$stmt = $conn->prepare("INSERT INTO spamprotector_mails (mailbox, imapUid, sentDateTime, sender, recipient, subject, content, catalogedOn, toBeRemovedOn, removedOn) 
+								VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NULL, NULL)"); 
+		$stmt->bind_param("sisssss", $mailbox, $uid, $sentDt, $sender, $recipient, $subject, $content);
+		$stmt->execute();
+		$stmt->close();
+		$conn->close();
+		return true;
 	}
 	
 	protected function decodeSubject($subject)
 	{
 		$decoded = imap_mime_header_decode($subject);
+				
 		$output = '';
 		
 		if (!isset($decoded))
@@ -160,9 +142,12 @@ abstract class BaseMailbox
 			
 		foreach($decoded as $part)
 		{
-			$output = $output . $part->text;
+			if(property_exists($part, "text"))
+			{
+				$output = $output . $part->text;
+			}
 		}
-			
+
 		return $output;
 	}
 

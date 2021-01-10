@@ -18,9 +18,6 @@ $output = null;
 
 try 
 {
-	$settings = new \SpamProtector\Settings();
-	$settings->UpdateLastRunCatalogSpam();
-	
 	$spamMailbox = new \SpamProtector\Mailbox\SpamMailbox();
 	$result = $spamMailbox->catalogSpam();
 	
@@ -29,6 +26,9 @@ try
 		'result' => 'SUCCESS',
 		'details' => $result
 	);
+	
+	$settings = new \SpamProtector\Settings();
+	$settings->UpdateLastRunCatalogSpam();
 }
 catch (\Exception $e)
 {

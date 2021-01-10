@@ -11,13 +11,13 @@ header('Access-Control-Allow-Headers: Content-Type, origin, authorization, accep
 require_once __DIR__ . '/../../lib/Mailbox/MainMailbox.php';
 require_once __DIR__ . '/../../lib/Settings.php';
 
+// Script start
+$start_time = microtime(true); 
+$output = null;
+
 try 
 {
-	$settings = new \SpamProtector\Settings();
-	$settings->UpdateLastRunScan();
-	
 	$currDate = new \DateTime();
-	
 	$hour = intval($currDate->format('G'));
 	
 	// SCRIPT IS NOT RUNNING BETWEEN 23:00 - 07:00
@@ -35,19 +35,28 @@ try
 		$result = $mailbox->detectSpam();
 	
 		http_response_code(200);
-		echo(json_encode(array(
+		$output = array(
 			'result' => 'SUCCESS',
 			'details' => $result
-		)));
+		);
 	}
+	
+	$settings = new \SpamProtector\Settings();
+	$settings->UpdateLastRunScan();
 }
 catch (\Exception $e)
 {
 	http_response_code(500);
-	echo(json_encode(array(
+	$output = array(
 		'result' => 'ERROR',
 		'details' => $e->getMessage()
-	)));
+	);
 }
 
+// Script end
+$end_time = microtime(true); 
+$execution_time = ($end_time - $start_time); 
+$output['executionTime'] = $execution_time." sec";
+
+echo(json_encode($output));
 exit;

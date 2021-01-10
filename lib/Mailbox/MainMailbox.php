@@ -22,7 +22,7 @@ class MainMailbox extends BaseMailbox
 	{
 		$result = array('mailsMoved' => 0, 'mails' => array());
 		$inbox = imap_open($this->hostname, $this->username, $this->password);
-		$emails = imap_search($inbox, 'ALL');
+		$emails = imap_search($inbox, 'UNSEEN');
 
 		if($emails) 
 		{				
@@ -30,9 +30,18 @@ class MainMailbox extends BaseMailbox
 
 			foreach($emails as $email_number) 
 			{
-				$overview = imap_header($inbox, $email_number, 0);
+				$overview = imap_headerinfo ($inbox, $email_number, 0);
+				
 				$from = $overview->from[0]->mailbox . '@' . $overview->from[0]->host;
-				$subject = $this->decodeSubject($overview->subject);
+				
+				if(property_exists($overview, "subject"))
+				{
+					$subject = $this->decodeSubject($overview->subject);
+				}
+				else
+				{
+					$subject = 'NO SUBJECT';
+				}
 		
 				if($this->isSpam($from, $subject))
 				{
