@@ -5,9 +5,9 @@ using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.Json;
 
 namespace CatalogMainService
 {
@@ -16,12 +16,18 @@ namespace CatalogMainService
         private readonly ILogger<Worker> logger;
         private readonly IMailboxProvider mailboxProvider;
         private readonly IServiceRunHistoryHandler serviceRunHistoryHandler;
+        private readonly IServiceRunScheduleProvider serviceRunScheduleProvider;
 
-        public Worker(IMailboxProvider mailboxProvider, ILogger<Worker> logger, IServiceRunHistoryHandler serviceRunHistoryHandler)
+        public Worker(
+            IMailboxProvider mailboxProvider, 
+            ILogger<Worker> logger, 
+            IServiceRunHistoryHandler serviceRunHistoryHandler,
+            IServiceRunScheduleProvider serviceRunScheduleProvider)
         {
             this.logger = logger;
             this.mailboxProvider = mailboxProvider;
             this.serviceRunHistoryHandler = serviceRunHistoryHandler;
+            this.serviceRunScheduleProvider = serviceRunScheduleProvider;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -30,22 +36,26 @@ namespace CatalogMainService
             {
                 logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 
-                await serviceRunHistoryHandler.RegisterStartAsync(nameof(CatalogMainService));
-                try
+                if (serviceRunScheduleProvider.ShouldRun(nameof(CatalogMainService)))
                 {
-                    await mailboxProvider.CatalogAsync();
-                    await serviceRunHistoryHandler.RegisterFinishAsync(nameof(CatalogMainService), null, ServiceRunHistoryHandler.ServiceStatus.DONE);
-                }
-                catch (Exception ex)
-                {
-                    await serviceRunHistoryHandler.RegisterFinishAsync(
-                        nameof(CatalogMainService), 
-                        JsonSerializer.Serialize(new { ex.Message, ex.StackTrace }), 
-                        ServiceRunHistoryHandler.ServiceStatus.ERROR
-                        );
-                }
+                    await serviceRunHistoryHandler.RegisterStartAsync(nameof(CatalogMainService));
+                    try
+                    {
+                        await mailboxProvider.CatalogAsync();
+                        await serviceRunHistoryHandler.RegisterFinishAsync(nameof(CatalogMainService), null, ServiceRunHistoryHandler.ServiceStatus.DONE);
+                    }
+                    catch (Exception ex)
+                    {
+                        await serviceRunHistoryHandler.RegisterFinishAsync(
+                            nameof(CatalogMainService),
+                            JsonSerializer.Serialize(new { ex.Message, ex.StackTrace }),
+                            ServiceRunHistoryHandler.ServiceStatus.ERROR
+                            );
+                    }
 
-                logger.LogInformation("Done");
+                    logger.LogInformation("Service run done");
+                }
+                
                 await Task.Delay(10000, stoppingToken);
             }
         }

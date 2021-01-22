@@ -28,6 +28,7 @@ namespace CatalogMainService
                         .AddSingleton<IMailboxProvider, MainMailboxProvider>()
                         .AddSingleton<IMessagesHandler, MessagesHandler>()
                         .AddSingleton<IServiceRunHistoryHandler, ServiceRunHistoryHandler>()
+                        .AddSingleton<IServiceRunScheduleProvider, ServiceRunScheduleProvider>()
                         .AddHostedService<Worker>();
                 });
     }

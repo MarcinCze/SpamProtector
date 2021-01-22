@@ -36,6 +36,10 @@ namespace ProtectorLib.Handlers
                     StartTime = DateTime.Now
                 };
                 await dbContext.ServiceRunHistories.AddAsync(entry);
+
+                var service = dbContext.ServiceRunSchedules.FirstOrDefault(x => x.ServiceName == serviceName);
+                service.LastRun = DateTime.Now;
+
                 await dbContext.SaveChangesAsync();
                 entryId = entry.Id;
             }

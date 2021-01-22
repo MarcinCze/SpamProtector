@@ -22,6 +22,7 @@ namespace ProtectorLib
         public virtual DbSet<RuleType> RuleTypes { get; set; }
         public virtual DbSet<RuleUsageStat> RuleUsageStats { get; set; }
         public virtual DbSet<ServiceRunHistory> ServiceRunHistories { get; set; }
+        public virtual DbSet<ServiceRunSchedule> ServiceRunSchedules { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -98,6 +99,17 @@ namespace ProtectorLib
                 entity.Property(e => e.Status)
                     .IsRequired()
                     .HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<ServiceRunSchedule>(entity =>
+            {
+                entity.ToTable("ServiceRunSchedule");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.ServiceName)
+                    .IsRequired()
+                    .HasMaxLength(50);
             });
 
             OnModelCreatingPartial(modelBuilder);

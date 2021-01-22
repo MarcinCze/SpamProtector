@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,7 +24,10 @@ namespace ProtectorLib.Handlers
                 dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
 
                 foreach (var msg in messages.Where(m => !MessageExsists(m)))
+                {
+                    msg.CatalogTime = DateTime.Now;
                     await dbContext.Messages.AddAsync(msg);
+                }
 
                 await dbContext.SaveChangesAsync();
             }
