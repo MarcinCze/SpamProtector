@@ -5,6 +5,7 @@ using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 
 using System;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,31 +33,43 @@ namespace CatalogMainService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            var stopWatch = new Stopwatch();
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 
                 if (serviceRunScheduleProvider.ShouldRun(nameof(CatalogMainService)))
                 {
+                    logger.LogInformation("Started operation");        
+                    stopWatch.Start();
+
+                    string additionalInfo = null;
+                    var status = ServiceRunHistoryHandler.ServiceStatus.PROCESSING;
+
                     await serviceRunHistoryHandler.RegisterStartAsync(nameof(CatalogMainService));
+
                     try
                     {
                         await mailboxProvider.CatalogAsync();
-                        await serviceRunHistoryHandler.RegisterFinishAsync(nameof(CatalogMainService), null, ServiceRunHistoryHandler.ServiceStatus.DONE);
+                        status = ServiceRunHistoryHandler.ServiceStatus.DONE;
                     }
                     catch (Exception ex)
                     {
-                        await serviceRunHistoryHandler.RegisterFinishAsync(
-                            nameof(CatalogMainService),
-                            JsonSerializer.Serialize(new { ex.Message, ex.StackTrace }),
-                            ServiceRunHistoryHandler.ServiceStatus.ERROR
-                            );
+                        status = ServiceRunHistoryHandler.ServiceStatus.ERROR;
+                        additionalInfo = JsonSerializer.Serialize(new { ex.Message, ex.StackTrace });
+                    }
+                    finally
+                    {
+                        stopWatch.Stop();
+                        await serviceRunHistoryHandler.RegisterFinishAsync(nameof(CatalogMainService), additionalInfo, status, $"{stopWatch.ElapsedMilliseconds} ms");
+                        stopWatch.Reset();
                     }
 
                     logger.LogInformation("Service run done");
                 }
-                
-                await Task.Delay(10000, stoppingToken);
+
+                await Task.Delay(new TimeSpan(0, 0, 30), stoppingToken);
             }
         }
     }

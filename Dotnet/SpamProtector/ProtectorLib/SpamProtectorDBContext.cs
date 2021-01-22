@@ -88,6 +88,8 @@ namespace ProtectorLib
 
                 entity.Property(e => e.EndTime).HasColumnType("datetime");
 
+                entity.Property(e => e.ExecutionTime).HasMaxLength(200);
+
                 entity.Property(e => e.Information).HasMaxLength(1000);
 
                 entity.Property(e => e.ServiceName)
@@ -104,8 +106,6 @@ namespace ProtectorLib
             modelBuilder.Entity<ServiceRunSchedule>(entity =>
             {
                 entity.ToTable("ServiceRunSchedule");
-
-                entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.ServiceName)
                     .IsRequired()

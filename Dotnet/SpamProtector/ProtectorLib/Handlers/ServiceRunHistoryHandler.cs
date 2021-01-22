@@ -45,7 +45,7 @@ namespace ProtectorLib.Handlers
             }
         }
 
-        public async Task RegisterFinishAsync(string serviceName, string additionalData, ServiceStatus endStatus)
+        public async Task RegisterFinishAsync(string serviceName, string additionalData, ServiceStatus endStatus, string executionTime)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
@@ -59,6 +59,7 @@ namespace ProtectorLib.Handlers
                 entry.Status = endStatus.ToString();
                 entry.EndTime = DateTime.Now;
                 entry.Information = additionalData;
+                entry.ExecutionTime = executionTime;
 
                 await dbContext.SaveChangesAsync();
             }
