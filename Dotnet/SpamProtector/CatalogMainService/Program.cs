@@ -1,9 +1,12 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using ProtectorLib.Providers;
+using ProtectorLib;
 using ProtectorLib.Configuration;
+using ProtectorLib.Handlers;
+using ProtectorLib.Providers;
 
 namespace CatalogMainService
 {
@@ -19,8 +22,12 @@ namespace CatalogMainService
                 .ConfigureServices((hostContext, services) =>
                 {
                     services
-                        .AddSingleton(hostContext.Configuration.GetSection("Mailboxes").GetSection("MainBox").Get<MainBoxConfig>())
+                        .AddSingleton(hostContext.Configuration.GetSection("Mailboxes").GetSection("MainBox").Get<MailboxConfig>())
+                        .AddSingleton(hostContext.Configuration.GetSection("Services").Get<ServicesConfig>())
+                        .AddDbContext<SpamProtectorDBContext>(options => options.UseSqlServer(hostContext.Configuration.GetConnectionString("SpamProtectorDBContext")))
                         .AddSingleton<IMailboxProvider, MainMailboxProvider>()
+                        .AddSingleton<IMessagesHandler, MessagesHandler>()
+                        .AddSingleton<IServiceRunHistoryHandler, ServiceRunHistoryHandler>()
                         .AddHostedService<Worker>();
                 });
     }

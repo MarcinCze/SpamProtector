@@ -8,16 +8,16 @@ using System.Threading.Tasks;
 
 namespace ProtectorLib.Providers
 {
-    public class SpamMailboxProvider : BaseMailboxProvider
-    {
-        public SpamMailboxProvider()
-        {
+    //public class SpamMailboxProvider : BaseMailboxProvider
+    //{
+    //    public SpamMailboxProvider()
+    //    {
 
-        }
+    //    }
 
-        public override Task CatalogAsync()
-        {
-            throw new NotImplementedException();
-        }
-    }
+    //    public override Task CatalogAsync()
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
 }

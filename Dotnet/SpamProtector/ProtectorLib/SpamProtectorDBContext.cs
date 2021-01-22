@@ -21,15 +21,7 @@ namespace ProtectorLib
         public virtual DbSet<Rule> Rules { get; set; }
         public virtual DbSet<RuleType> RuleTypes { get; set; }
         public virtual DbSet<RuleUsageStat> RuleUsageStats { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=SpamProtectorDB;Integrated Security=True");
-            }
-        }
+        public virtual DbSet<ServiceRunHistory> ServiceRunHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -87,6 +79,25 @@ namespace ProtectorLib
                     .HasForeignKey(d => d.RuleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_RuleUsageStats_Rules");
+            });
+
+            modelBuilder.Entity<ServiceRunHistory>(entity =>
+            {
+                entity.ToTable("ServiceRunHistory");
+
+                entity.Property(e => e.EndTime).HasColumnType("datetime");
+
+                entity.Property(e => e.Information).HasMaxLength(1000);
+
+                entity.Property(e => e.ServiceName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.StartTime).HasColumnType("datetime");
+
+                entity.Property(e => e.Status)
+                    .IsRequired()
+                    .HasMaxLength(100);
             });
 
             OnModelCreatingPartial(modelBuilder);

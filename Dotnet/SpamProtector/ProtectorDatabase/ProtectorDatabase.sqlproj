@@ -57,4 +57,11 @@
   <ItemGroup>
     <Folder Include="Properties" />
   </ItemGroup>
+  <ItemGroup>
+    <Build Include="Messages.sql" />
+    <Build Include="Rules.sql" />
+    <Build Include="RuleTypes.sql" />
+    <Build Include="RuleUsageStats.sql" />
+    <Build Include="ServiceRunHistory.sql" />
+  </ItemGroup>
 </Project>

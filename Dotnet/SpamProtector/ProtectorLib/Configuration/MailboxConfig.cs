@@ -1,6 +1,6 @@
 ﻿namespace ProtectorLib.Configuration
 {
-    public class MainBoxConfig
+    public class MailboxConfig
     {
         public string Url { get; set; }
         public int Port { get; set; }

@@ -1,6 +1,7 @@
 ﻿CREATE TABLE [dbo].[Messages]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
+    [ImapUid] INT NOT NULL,
     [Mailbox] NVARCHAR(10) NOT NULL, 
     [Recipient] NVARCHAR(50) NOT NULL, 
     [Sender] NVARCHAR(500) NOT NULL, 
