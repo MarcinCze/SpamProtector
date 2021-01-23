@@ -19,6 +19,7 @@ namespace CatalogSpamService
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseWindowsService()
                 .ConfigureServices((hostContext, services) =>
                 {
                     services
@@ -29,6 +30,7 @@ namespace CatalogSpamService
                         .AddSingleton<IMessagesHandler, MessagesHandler>()
                         .AddSingleton<IServiceRunHistoryHandler, ServiceRunHistoryHandler>()
                         .AddSingleton<IServiceRunScheduleProvider, ServiceRunScheduleProvider>()
+                        .AddSingleton<IRulesProvider, RulesProvider>()
                         .AddHostedService<Worker>();
                 });
     }
