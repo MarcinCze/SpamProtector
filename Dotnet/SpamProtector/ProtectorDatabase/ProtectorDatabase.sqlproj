@@ -63,5 +63,6 @@
     <Build Include="RuleTypes.sql" />
     <Build Include="RuleUsageStats.sql" />
     <Build Include="ServiceRunHistory.sql" />
+    <Build Include="ServiceRunSchedule.sql" />
   </ItemGroup>
 </Project>

@@ -28,7 +28,8 @@ namespace ProtectorLib.Providers
 
 		protected string MailBoxName { get; set; }
 
-		protected DateTime DeliveredAfterDate => DateTime.Now.Date.AddDays(-servicesConfig.CatalogDaysToCheck);
+		protected virtual DateTime DeliveredAfterDate => DateTime.Now.Date.AddDays(-servicesConfig.CatalogDaysToCheck);
+		protected virtual DateTime DeliveredAfterDateScan => DateTime.Now.Date.AddDays(-servicesConfig.ScanDaysToCheck);
 
 		public async virtual Task CatalogAsync()
         {
@@ -64,6 +65,8 @@ namespace ProtectorLib.Providers
 
 			await messagesHandler.CatalogMessagesAsync(messages);
 		}
+
+		public virtual Task DetectSpamAsync() => throw new NotImplementedException();
 
         protected virtual Task<IMailFolder> GetFolderAsync(ImapClient imapClient) => throw new NotImplementedException();
     }

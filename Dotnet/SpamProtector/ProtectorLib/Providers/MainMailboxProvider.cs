@@ -1,20 +1,71 @@
 ﻿using MailKit;
 using MailKit.Net.Imap;
+using MailKit.Search;
+using MailKit.Security;
+
+using MimeKit;
 
 using ProtectorLib.Configuration;
 using ProtectorLib.Handlers;
 
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ProtectorLib.Providers
 {
     public class MainMailboxProvider : BaseMailboxProvider
     {
-		public MainMailboxProvider(MailboxConfig mailboxConfig, ServicesConfig servicesConfig, IMessagesHandler messagesHandler) 
+        private readonly IRulesProvider rulesProvider;
+
+		public MainMailboxProvider(
+            MailboxConfig mailboxConfig, 
+            ServicesConfig servicesConfig, 
+            IMessagesHandler messagesHandler,
+            IRulesProvider rulesProvider) 
 			: base(mailboxConfig, servicesConfig, messagesHandler)
         {
 			MailBoxName = "MARCIN";
+            this.rulesProvider = rulesProvider;
 		}
+
+        public async override Task DetectSpamAsync()
+        {
+			using (var client = new ImapClient())
+			{
+				await client.ConnectAsync(mailboxConfig.Url, mailboxConfig.Port, SecureSocketOptions.SslOnConnect);
+				await client.AuthenticateAsync(mailboxConfig.UserName, mailboxConfig.Password);
+				await client.Inbox.OpenAsync(FolderAccess.ReadWrite);
+				var destinationFolder = await client.Inbox.GetSubfolderAsync("Junk");
+
+				var uids = await client.Inbox.SearchAsync(SearchQuery.DeliveredAfter(DeliveredAfterDateScan));
+
+				foreach (var uid in uids)
+				{
+					var message = await client.Inbox.GetMessageAsync(uid);
+
+					if (await IsSpam(message))
+						await client.Inbox.MoveToAsync(uid, destinationFolder);
+				}
+
+				client.Disconnect(true);
+			}
+		}
+
+		protected async Task<bool> IsSpam(MimeMessage message)
+        {
+			string sender = message.From.Mailboxes.FirstOrDefault()?.Address;
+			if (await rulesProvider.IsInSenderBlacklist(sender))
+				return true;
+
+            string domain = sender.Substring(sender.IndexOf('@') + 1);
+            if (await rulesProvider.IsInDomainBlacklist(domain))
+                return true;
+
+            if (await rulesProvider.IsInSubjectBlacklist(message.Subject))
+                return true;
+
+            return false;
+        }
 
         protected async override Task<IMailFolder> GetFolderAsync(ImapClient imapClient) => await imapClient.Inbox.GetSubfolderAsync("Junk");
     }

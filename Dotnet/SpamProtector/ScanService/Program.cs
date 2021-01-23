@@ -1,10 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using ProtectorLib;
+using ProtectorLib.Configuration;
+using ProtectorLib.Handlers;
+using ProtectorLib.Providers;
 
 namespace ScanService
 {
@@ -17,9 +19,19 @@ namespace ScanService
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseWindowsService()
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddHostedService<Worker>();
+                    services
+                        .AddSingleton(hostContext.Configuration.GetSection("Mailboxes").GetSection("MainBox").Get<MailboxConfig>())
+                        .AddSingleton(hostContext.Configuration.GetSection("Services").Get<ServicesConfig>())
+                        .AddDbContext<SpamProtectorDBContext>(options => options.UseSqlServer(hostContext.Configuration.GetConnectionString("SpamProtectorDBContext")))
+                        .AddSingleton<IMailboxProvider, MainMailboxProvider>()
+                        .AddSingleton<IMessagesHandler, MessagesHandler>()
+                        .AddSingleton<IRulesProvider, RulesProvider>()
+                        .AddSingleton<IServiceRunHistoryHandler, ServiceRunHistoryHandler>()
+                        .AddSingleton<IServiceRunScheduleProvider, ServiceRunScheduleProvider>()
+                        .AddHostedService<Worker>();
                 });
     }
 }
