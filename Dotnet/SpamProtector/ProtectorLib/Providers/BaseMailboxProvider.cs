@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MailKit;
+using MailKit.Net.Imap;
+using MailKit.Search;
+using MailKit.Security;
 
 using ProtectorLib.Configuration;
 using ProtectorLib.Handlers;
@@ -6,7 +9,6 @@ using ProtectorLib.Handlers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ProtectorLib.Providers
@@ -24,8 +26,45 @@ namespace ProtectorLib.Providers
             this.messagesHandler = messagesHandler;
         }
 
-        public abstract Task CatalogAsync();
+		protected string MailBoxName { get; set; }
 
-        protected DateTime DeliveredAfterDate => DateTime.Now.Date.AddDays(-servicesConfig.CatalogDaysToCheck);
+		protected DateTime DeliveredAfterDate => DateTime.Now.Date.AddDays(-servicesConfig.CatalogDaysToCheck);
+
+		public async virtual Task CatalogAsync()
+        {
+			var messages = new List<Message>();
+
+			using (var client = new ImapClient())
+			{
+				await client.ConnectAsync(mailboxConfig.Url, mailboxConfig.Port, SecureSocketOptions.SslOnConnect);
+				await client.AuthenticateAsync(mailboxConfig.UserName, mailboxConfig.Password);
+
+				var junkFolder = await GetFolderAsync(client);
+				await junkFolder.OpenAsync(FolderAccess.ReadOnly);
+				var uids = await junkFolder.SearchAsync(SearchQuery.DeliveredAfter(DeliveredAfterDate));
+
+				foreach (var uid in uids)
+				{
+					var message = await junkFolder.GetMessageAsync(uid);
+
+					messages.Add(new Message
+					{
+						ImapUid = (int)uid.Id,
+						Mailbox = MailBoxName,
+						Recipient = message.To.Mailboxes.FirstOrDefault()?.Address,
+						Sender = message.From.Mailboxes.FirstOrDefault()?.Address,
+						Subject = message.Subject,
+						Content = string.IsNullOrEmpty(message.TextBody) ? "TEXT BODY NOT PROVIDED. ONLY HTML" : message.TextBody,
+						ReceivedTime = message.Date.DateTime
+					});
+				}
+
+				client.Disconnect(true);
+			}
+
+			await messagesHandler.CatalogMessagesAsync(messages);
+		}
+
+        protected virtual Task<IMailFolder> GetFolderAsync(ImapClient imapClient) => throw new NotImplementedException();
     }
 }

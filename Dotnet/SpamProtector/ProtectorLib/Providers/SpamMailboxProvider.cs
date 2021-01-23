@@ -1,23 +1,21 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MailKit;
+using MailKit.Net.Imap;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using ProtectorLib.Configuration;
+using ProtectorLib.Handlers;
+
 using System.Threading.Tasks;
 
 namespace ProtectorLib.Providers
 {
-    //public class SpamMailboxProvider : BaseMailboxProvider
-    //{
-    //    public SpamMailboxProvider()
-    //    {
+    public class SpamMailboxProvider : BaseMailboxProvider
+    {
+        public SpamMailboxProvider(MailboxConfig mailboxConfig, ServicesConfig servicesConfig, IMessagesHandler messagesHandler) 
+            : base(mailboxConfig, servicesConfig, messagesHandler)
+        {
+            MailBoxName = "SPAM";
+        }
 
-    //    }
-
-    //    public override Task CatalogAsync()
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
+        protected async override Task<IMailFolder> GetFolderAsync(ImapClient imapClient) => await imapClient.GetFolderAsync("Inbox");
+    }
 }
