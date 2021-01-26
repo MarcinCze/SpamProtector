@@ -18,18 +18,24 @@ namespace ProtectorLib.Providers
         protected readonly MailboxConfig mailboxConfig;
         protected readonly ServicesConfig servicesConfig;
         protected readonly IMessagesHandler messagesHandler;
+		protected readonly IDateTimeProvider dateTimeProvider;
 
-        public BaseMailboxProvider(MailboxConfig mailboxConfig, ServicesConfig servicesConfig, IMessagesHandler messagesHandler)
+        public BaseMailboxProvider(
+			MailboxConfig mailboxConfig, 
+			ServicesConfig servicesConfig, 
+			IMessagesHandler messagesHandler, 
+			IDateTimeProvider dateTimeProvider)
         {
             this.mailboxConfig = mailboxConfig;
             this.servicesConfig = servicesConfig;
             this.messagesHandler = messagesHandler;
+			this.dateTimeProvider = dateTimeProvider;
         }
 
 		protected string MailBoxName { get; set; }
 
-		protected virtual DateTime DeliveredAfterDate => DateTime.Now.Date.AddDays(-servicesConfig.CatalogDaysToCheck);
-		protected virtual DateTime DeliveredAfterDateScan => DateTime.Now.Date.AddDays(-servicesConfig.ScanDaysToCheck);
+		protected virtual DateTime DeliveredAfterDate => dateTimeProvider.CurrentTime.Date.AddDays(-servicesConfig.CatalogDaysToCheck);
+		protected virtual DateTime DeliveredAfterDateScan => dateTimeProvider.CurrentTime.Date.AddDays(-servicesConfig.ScanDaysToCheck);
 
 		public async virtual Task CatalogAsync()
         {

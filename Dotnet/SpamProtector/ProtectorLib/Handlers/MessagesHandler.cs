@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-
-using System;
+using ProtectorLib.Providers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,11 +9,13 @@ namespace ProtectorLib.Handlers
     public class MessagesHandler : IMessagesHandler
     {
         private readonly IServiceScopeFactory serviceScopeFactory;
+        private readonly IDateTimeProvider dateTimeProvider;
         private SpamProtectorDBContext dbContext;
 
-        public MessagesHandler(IServiceScopeFactory serviceScopeFactory)
+        public MessagesHandler(IServiceScopeFactory serviceScopeFactory, IDateTimeProvider dateTimeProvider)
         {
             this.serviceScopeFactory = serviceScopeFactory;
+            this.dateTimeProvider = dateTimeProvider;
         }
 
         public async Task CatalogMessagesAsync(IEnumerable<Message> messages)
@@ -25,7 +26,7 @@ namespace ProtectorLib.Handlers
 
                 foreach (var msg in messages.Where(m => !MessageExsists(m)))
                 {
-                    msg.CatalogTime = DateTime.Now;
+                    msg.CatalogTime = dateTimeProvider.CurrentTime;
                     await dbContext.Messages.AddAsync(msg);
                 }
 

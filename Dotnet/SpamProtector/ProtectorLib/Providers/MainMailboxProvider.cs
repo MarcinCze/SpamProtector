@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace ProtectorLib.Providers
 {
-    public class MainMailboxProvider : BaseMailboxProvider
+	public class MainMailboxProvider : BaseMailboxProvider
     {
         private readonly IRulesProvider rulesProvider;
 
@@ -21,8 +21,9 @@ namespace ProtectorLib.Providers
             MailboxConfig mailboxConfig, 
             ServicesConfig servicesConfig, 
             IMessagesHandler messagesHandler,
-            IRulesProvider rulesProvider) 
-			: base(mailboxConfig, servicesConfig, messagesHandler)
+            IRulesProvider rulesProvider,
+			IDateTimeProvider dateTimeProvider) 
+			: base(mailboxConfig, servicesConfig, messagesHandler, dateTimeProvider)
         {
 			MailBoxName = "MARCIN";
             this.rulesProvider = rulesProvider;

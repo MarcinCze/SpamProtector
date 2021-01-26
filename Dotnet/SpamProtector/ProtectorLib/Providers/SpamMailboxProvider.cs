@@ -10,8 +10,12 @@ namespace ProtectorLib.Providers
 {
     public class SpamMailboxProvider : BaseMailboxProvider
     {
-        public SpamMailboxProvider(MailboxConfig mailboxConfig, ServicesConfig servicesConfig, IMessagesHandler messagesHandler) 
-            : base(mailboxConfig, servicesConfig, messagesHandler)
+        public SpamMailboxProvider(
+            MailboxConfig mailboxConfig, 
+            ServicesConfig servicesConfig, 
+            IMessagesHandler messagesHandler,
+            IDateTimeProvider dateTimeProvider) 
+            : base(mailboxConfig, servicesConfig, messagesHandler, dateTimeProvider)
         {
             MailBoxName = "SPAM";
         }
