@@ -81,7 +81,7 @@ namespace ProtectorLib.Providers
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
 
-                var ruleUsage = await dbContext.RuleUsageStats.FirstOrDefaultAsync(x => x.Id == ruleId);
+                var ruleUsage = await dbContext.RuleUsageStats.FirstOrDefaultAsync(x => x.RuleId == ruleId);
 
                 if (ruleUsage == null)
                 {

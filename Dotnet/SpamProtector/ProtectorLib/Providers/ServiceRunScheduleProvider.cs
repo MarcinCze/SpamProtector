@@ -8,10 +8,12 @@ namespace ProtectorLib.Providers
     public class ServiceRunScheduleProvider : IServiceRunScheduleProvider
     {
         private readonly IServiceScopeFactory serviceScopeFactory;
+        private readonly IDateTimeProvider dateTimeProvider;
 
-        public ServiceRunScheduleProvider(IServiceScopeFactory serviceScopeFactory)
+        public ServiceRunScheduleProvider(IServiceScopeFactory serviceScopeFactory, IDateTimeProvider dateTimeProvider)
         {
             this.serviceScopeFactory = serviceScopeFactory;
+            this.dateTimeProvider = dateTimeProvider;
         }
 
         public bool ShouldRun(string serviceName)
@@ -21,14 +23,14 @@ namespace ProtectorLib.Providers
                 var dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
                 var nextRun = CalculateNextRun(dbContext.ServiceRunSchedules.First(x => x.ServiceName == serviceName));
 
-                return nextRun <= DateTime.Now;
+                return nextRun <= dateTimeProvider.CurrentTime;
             }
         }
 
         protected DateTime CalculateNextRun(ServiceRunSchedule service)
         {
             if (!service.LastRun.HasValue)
-                return DateTime.Now;
+                return dateTimeProvider.CurrentTime;
 
             return service.LastRun.Value
                 .AddDays(service.RunEveryDays)

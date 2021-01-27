@@ -2,11 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
 using ProtectorLib;
 using ProtectorLib.Configuration;
-using ProtectorLib.Handlers;
-using ProtectorLib.Providers;
+using ProtectorLib.Extensions;
 
 namespace ScanService
 {
@@ -26,11 +24,8 @@ namespace ScanService
                         .AddSingleton(hostContext.Configuration.GetSection("Mailboxes").GetSection("MainBox").Get<MailboxConfig>())
                         .AddSingleton(hostContext.Configuration.GetSection("Services").Get<ServicesConfig>())
                         .AddDbContext<SpamProtectorDBContext>(options => options.UseSqlServer(hostContext.Configuration.GetConnectionString("SpamProtectorDBContext")))
-                        .AddSingleton<IMailboxProvider, MainMailboxProvider>()
-                        .AddSingleton<IMessagesHandler, MessagesHandler>()
-                        .AddSingleton<IRulesProvider, RulesProvider>()
-                        .AddSingleton<IServiceRunHistoryHandler, ServiceRunHistoryHandler>()
-                        .AddSingleton<IServiceRunScheduleProvider, ServiceRunScheduleProvider>()
+                        .AddMainMailboxProvider()
+                        .AddServiceRunHandlers()
                         .AddHostedService<Worker>();
                 });
     }
