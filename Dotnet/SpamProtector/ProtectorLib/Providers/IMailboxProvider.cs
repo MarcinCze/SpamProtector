@@ -6,5 +6,6 @@ namespace ProtectorLib.Providers
     {
         Task CatalogAsync();
         Task DetectSpamAsync();
+        Task<(int countBefore, int countAfter)> DeleteMessagesAsync();
     }
 }

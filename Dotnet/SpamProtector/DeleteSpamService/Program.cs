@@ -4,8 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using ProtectorLib;
+using ProtectorLib.Configuration;
 using ProtectorLib.Extensions;
-using ProtectorLib.Providers;
 
 namespace DeleteSpamService
 {
@@ -22,8 +22,10 @@ namespace DeleteSpamService
             .ConfigureServices((hostContext, services) =>
             {
                 services
+                    .AddSingleton(hostContext.Configuration.GetSection("Mailboxes").GetSection("SpamBox").Get<MailboxConfig>())
+                    .AddSingleton(hostContext.Configuration.GetSection("Services").Get<ServicesConfig>())
                     .AddDbContext<SpamProtectorDBContext>(options => options.UseSqlServer(hostContext.Configuration.GetConnectionString("SpamProtectorDBContext")))
-                    .AddSingleton<IDateTimeProvider, DateTimeProvider>()
+                    .AddSpamMailboxProvider()
                     .AddServiceRunHandlers()
                     .AddHostedService<Worker>();
             });

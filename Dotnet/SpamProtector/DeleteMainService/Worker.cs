@@ -17,13 +17,16 @@ namespace DeleteMainService
         private readonly ILogger<Worker> logger;
         private readonly IServiceRunHistoryHandler serviceRunHistoryHandler;
         private readonly IServiceRunScheduleProvider serviceRunScheduleProvider;
+        private readonly IMailboxProvider mailboxProvider;
 
         public Worker(
             ILogger<Worker> logger,
+            IMailboxProvider mailboxProvider,
             IServiceRunHistoryHandler serviceRunHistoryHandler,
             IServiceRunScheduleProvider serviceRunScheduleProvider)
         {
             this.logger = logger;
+            this.mailboxProvider = mailboxProvider;
             this.serviceRunScheduleProvider = serviceRunScheduleProvider;
             this.serviceRunHistoryHandler = serviceRunHistoryHandler;
         }
@@ -48,8 +51,9 @@ namespace DeleteMainService
 
                     try
                     {
-                        //TODO CALL THE FUNCTION
+                        (int countBefore, int countAfter) = await mailboxProvider.DeleteMessagesAsync();
                         status = ServiceRunHistoryHandler.ServiceStatus.DONE;
+                        additionalInfo = $"BEFORE: {countBefore} AFTER: {countAfter}";
                     }
                     catch (Exception ex)
                     {
