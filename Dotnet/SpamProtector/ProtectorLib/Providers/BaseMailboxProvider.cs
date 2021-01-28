@@ -66,10 +66,49 @@ namespace ProtectorLib.Providers
 					});
 				}
 
-				client.Disconnect(true);
+				await client.DisconnectAsync(true);
 			}
 
 			await messagesHandler.CatalogMessagesAsync(messages);
+		}
+
+		public async virtual Task<(int countBefore, int countAfter)> DeleteMessagesAsync()
+        {
+			var messagesToRemove = await messagesHandler.GetMessagesForRemovalAsync(MailBoxName);
+			var messagesRemoved = new List<int>();
+
+			using (var client = new ImapClient())
+			{
+				await client.ConnectAsync(mailboxConfig.Url, mailboxConfig.Port, SecureSocketOptions.SslOnConnect);
+				await client.AuthenticateAsync(mailboxConfig.UserName, mailboxConfig.Password);
+
+				var junkFolder = await GetFolderAsync(client);
+				await junkFolder.OpenAsync(FolderAccess.ReadWrite);
+				int countBefore = junkFolder.Count;
+
+				if (!messagesToRemove.Any())
+					return (countBefore, countBefore);
+
+				foreach (var message in messagesToRemove)
+                {
+					try
+                    {
+						UniqueId uid = new UniqueId((uint)message.ImapUid);
+						var mail = await junkFolder.GetMessageAsync(uid);
+						await junkFolder.AddFlagsAsync(uid, MessageFlags.Deleted, true);
+						messagesRemoved.Add(message.Id);
+					}
+                    catch (Exception ex)
+                    { }
+                }
+
+				await junkFolder.ExpungeAsync();
+				int countAfter = junkFolder.Count;
+				await client.DisconnectAsync(true);
+				await messagesHandler.MarkMessagesAsRemovedAsync(messagesRemoved);
+
+				return (countBefore, countAfter);
+			}
 		}
 
 		public virtual Task DetectSpamAsync() => throw new NotImplementedException();

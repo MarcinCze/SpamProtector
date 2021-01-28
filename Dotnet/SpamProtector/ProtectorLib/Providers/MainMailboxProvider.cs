@@ -48,7 +48,7 @@ namespace ProtectorLib.Providers
 						await client.Inbox.MoveToAsync(uid, destinationFolder);
 				}
 
-				client.Disconnect(true);
+				await client.DisconnectAsync(true);
 			}
 		}
 
