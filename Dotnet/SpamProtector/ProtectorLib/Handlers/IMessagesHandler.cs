@@ -5,6 +5,7 @@ namespace ProtectorLib.Handlers
 {
     public interface IMessagesHandler
     {
+        Task MarkForRemovalAsync();
         Task CatalogMessagesAsync(IEnumerable<Message> messages);
     }
 }
