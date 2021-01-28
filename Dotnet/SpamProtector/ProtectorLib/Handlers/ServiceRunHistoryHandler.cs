@@ -19,9 +19,10 @@ namespace ProtectorLib.Handlers
         private readonly IDateTimeProvider dateTimeProvider;
         private int entryId;
 
-        public ServiceRunHistoryHandler(IServiceScopeFactory serviceScopeFactory)
+        public ServiceRunHistoryHandler(IServiceScopeFactory serviceScopeFactory, IDateTimeProvider dateTimeProvider)
         {
             this.serviceScopeFactory = serviceScopeFactory;
+            this.dateTimeProvider = dateTimeProvider;
         }
 
         public async Task RegisterStartAsync(string serviceName)
