@@ -47,7 +47,7 @@ namespace ScanService
                     string additionalInfo = null;
                     var status = ServiceRunHistoryHandler.ServiceStatus.PROCESSING;
 
-                    await serviceRunHistoryHandler.RegisterStartAsync(nameof(ScanService));
+                    await serviceRunHistoryHandler.RegisterStartAsync(nameof(ScanService), GetType().Assembly.GetName().Version.ToString());
 
                     try
                     {

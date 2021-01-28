@@ -9,6 +9,7 @@ namespace ProtectorLib
     {
         public int Id { get; set; }
         public string ServiceName { get; set; }
+        public string ServiceVersion { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public string ExecutionTime { get; set; }

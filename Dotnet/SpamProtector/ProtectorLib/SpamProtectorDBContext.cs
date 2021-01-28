@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace ProtectorLib
 {
@@ -47,10 +45,6 @@ namespace ProtectorLib
 
             modelBuilder.Entity<Rule>(entity =>
             {
-                entity.Property(e => e.IsActive)
-                    .IsRequired()
-                    .HasDefaultValueSql("((1))");
-
                 entity.Property(e => e.Value)
                     .IsRequired()
                     .HasMaxLength(500);
@@ -91,6 +85,10 @@ namespace ProtectorLib
                 entity.Property(e => e.Information).HasMaxLength(1000);
 
                 entity.Property(e => e.ServiceName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.ServiceVersion)
                     .IsRequired()
                     .HasMaxLength(50);
 
