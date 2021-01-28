@@ -1,10 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using ProtectorLib;
+using ProtectorLib.Extensions;
+using ProtectorLib.Handlers;
+using ProtectorLib.Providers;
 
 namespace MarkingService
 {
@@ -17,9 +19,15 @@ namespace MarkingService
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureServices((hostContext, services) =>
-                {
-                    services.AddHostedService<Worker>();
-                });
+            .UseWindowsService()
+            .ConfigureServices((hostContext, services) =>
+            {
+                services
+                    .AddDbContext<SpamProtectorDBContext>(options => options.UseSqlServer(hostContext.Configuration.GetConnectionString("SpamProtectorDBContext")))
+                    .AddSingleton<IMessagesHandler, MessagesHandler>()
+                    .AddSingleton<IDateTimeProvider, DateTimeProvider>()
+                    .AddServiceRunHandlers()
+                    .AddHostedService<Worker>();
+            });
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+
 using ProtectorLib.Providers;
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,6 +30,23 @@ namespace ProtectorLib.Handlers
                 {
                     msg.CatalogTime = dateTimeProvider.CurrentTime;
                     await dbContext.Messages.AddAsync(msg);
+                }
+
+                await dbContext.SaveChangesAsync();
+            }
+
+            dbContext = null;
+        }
+
+        public async Task MarkForRemovalAsync()
+        {
+            using (var scope = serviceScopeFactory.CreateScope())
+            {
+                dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
+
+                foreach (var msg in dbContext.Messages.Where(x => !x.IsRemoved && x.CatalogTime != null && x.PlannedRemoveTime == null && x.RemoveTime == null))
+                {
+                    msg.PlannedRemoveTime = msg.CatalogTime.Value.AddDays(3).Date;
                 }
 
                 await dbContext.SaveChangesAsync();
