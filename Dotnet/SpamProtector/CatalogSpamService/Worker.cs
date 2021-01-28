@@ -47,7 +47,7 @@ namespace CatalogSpamService
                     string additionalInfo = null;
                     var status = ServiceRunHistoryHandler.ServiceStatus.PROCESSING;
 
-                    await serviceRunHistoryHandler.RegisterStartAsync(nameof(CatalogSpamService));
+                    await serviceRunHistoryHandler.RegisterStartAsync(nameof(CatalogSpamService), GetType().Assembly.GetName().Version.ToString());
 
                     try
                     {
