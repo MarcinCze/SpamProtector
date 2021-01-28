@@ -47,7 +47,7 @@ namespace CatalogMainService
                     string additionalInfo = null;
                     var status = ServiceRunHistoryHandler.ServiceStatus.PROCESSING;
 
-                    await serviceRunHistoryHandler.RegisterStartAsync(nameof(CatalogMainService));
+                    await serviceRunHistoryHandler.RegisterStartAsync(nameof(CatalogMainService), GetType().Assembly.GetName().Version.ToString());
 
                     try
                     {

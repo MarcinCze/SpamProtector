@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+
 using ProtectorLib.Providers;
-using System;
+
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,7 +26,7 @@ namespace ProtectorLib.Handlers
             this.dateTimeProvider = dateTimeProvider;
         }
 
-        public async Task RegisterStartAsync(string serviceName)
+        public async Task RegisterStartAsync(string serviceName, string serviceVersion)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
@@ -34,6 +35,7 @@ namespace ProtectorLib.Handlers
                 var entry = new ServiceRunHistory
                 {
                     ServiceName = serviceName,
+                    ServiceVersion = GetVersionEntry(serviceVersion),
                     Status = ServiceStatus.PROCESSING.ToString(),
                     StartTime = dateTimeProvider.CurrentTime
                 };
@@ -66,5 +68,7 @@ namespace ProtectorLib.Handlers
                 await dbContext.SaveChangesAsync();
             }
         }
+
+        private string GetVersionEntry(string serviceVersion) => $"ver {serviceVersion} / lib {GetType().Assembly.GetName().Version}";
     }
 }

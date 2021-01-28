@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-DeleteMainService-92D848A7-FD19-4D3F-B651-989C8C6713EB</UserSecretsId>
+    <FileVersion>1.0.5.0</FileVersion>
+    <Version>1.0.5.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

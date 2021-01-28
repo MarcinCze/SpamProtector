@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-DeleteSpamService-9D10B6F2-EFC7-4944-AA42-325BCA621ABB</UserSecretsId>
+    <FileVersion>1.0.5.0</FileVersion>
+    <Version>1.0.5.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-CatalogSpamService-1AB9E87F-D8D3-4BB7-984A-483B1ADCEECF</UserSecretsId>
+    <FileVersion>1.0.5.0</FileVersion>
+    <Version>1.0.5.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
