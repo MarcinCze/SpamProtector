@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using ProtectorLib.Providers;
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace ProtectorLib.Handlers
 {
@@ -27,7 +25,7 @@ namespace ProtectorLib.Handlers
             {
                 dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
 
-                foreach (var msg in messages.Where(m => !MessageExsists(m)))
+                foreach (var msg in messages.Where(m => !MessageExists(m)))
                 {
                     msg.CatalogTime = dateTimeProvider.CurrentTime;
                     await dbContext.Messages.AddAsync(msg);
@@ -94,6 +92,6 @@ namespace ProtectorLib.Handlers
             }
         }
 
-        private bool MessageExsists(Message message) => dbContext.Messages.Any(x => x.ImapUid == message.ImapUid && x.Sender == message.Sender);
+        private bool MessageExists(Message message) => dbContext.Messages.Any(x => x.ImapUid == message.ImapUid && x.Sender == message.Sender);
     }
 }

@@ -23,8 +23,7 @@ namespace ProtectorLib.Providers
 
         public async Task<bool> IsInSenderBlacklist(string sender)
         {
-            if (blacklistSender == null)
-                blacklistSender = await LoadRulesAsync(RuleKind.Sender);
+            blacklistSender ??= await LoadRulesAsync(RuleKind.Sender);
 
             var rule = blacklistSender.FirstOrDefault(x => x.Value.Equals(sender));
 
@@ -37,8 +36,7 @@ namespace ProtectorLib.Providers
 
         public async Task<bool> IsInDomainBlacklist(string domain)
         {
-            if (blacklistDomain == null)
-                blacklistDomain = await LoadRulesAsync(RuleKind.Domain);
+            blacklistDomain ??= await LoadRulesAsync(RuleKind.Domain);
 
             var rule = blacklistDomain.FirstOrDefault(x => x.Value.Equals(domain));
 
@@ -51,8 +49,7 @@ namespace ProtectorLib.Providers
 
         public async Task<bool> IsInSubjectBlacklist(string subject)
         {
-            if (blacklistSubject == null)
-                blacklistSubject = await LoadRulesAsync(RuleKind.Subject);
+            blacklistSubject ??= await LoadRulesAsync(RuleKind.Subject);
 
             var rule = blacklistSubject.FirstOrDefault(x => subject.Contains(x.Value, System.StringComparison.InvariantCultureIgnoreCase));
 

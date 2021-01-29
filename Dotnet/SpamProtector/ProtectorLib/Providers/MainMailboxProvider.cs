@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace ProtectorLib.Providers
 {
-	public class MainMailboxProvider : BaseMailboxProvider
+    public class MainMailboxProvider : BaseMailboxProvider
     {
         private readonly IRulesProvider rulesProvider;
 
@@ -64,7 +64,7 @@ namespace ProtectorLib.Providers
 			if (await rulesProvider.IsInSenderBlacklist(sender))
 				return true;
 
-            string domain = sender.Substring(sender.IndexOf('@') + 1);
+            string domain = sender?.Substring(sender.IndexOf('@') + 1);
             if (await rulesProvider.IsInDomainBlacklist(domain))
                 return true;
 
