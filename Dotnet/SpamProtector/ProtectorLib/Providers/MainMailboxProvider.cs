@@ -29,8 +29,9 @@ namespace ProtectorLib.Providers
             this.rulesProvider = rulesProvider;
 		}
 
-        public async override Task DetectSpamAsync()
+        public override async Task<int> DetectSpamAsync()
         {
+            int newSpamCounter = 0;
 			using (var client = new ImapClient())
 			{
 				await client.ConnectAsync(mailboxConfig.Url, mailboxConfig.Port, SecureSocketOptions.SslOnConnect);
@@ -44,13 +45,18 @@ namespace ProtectorLib.Providers
 				{
 					var message = await client.Inbox.GetMessageAsync(uid);
 
-					if (await IsSpam(message))
-						await client.Inbox.MoveToAsync(uid, destinationFolder);
-				}
+                    if (await IsSpam(message))
+                    {
+                        newSpamCounter++;
+                        await client.Inbox.MoveToAsync(uid, destinationFolder);
+					}
+                }
 
 				await client.DisconnectAsync(true);
 			}
-		}
+
+            return newSpamCounter;
+        }
 
 		protected async Task<bool> IsSpam(MimeMessage message)
         {
@@ -68,6 +74,6 @@ namespace ProtectorLib.Providers
             return false;
         }
 
-        protected async override Task<IMailFolder> GetFolderAsync(ImapClient imapClient) => await imapClient.Inbox.GetSubfolderAsync("Junk");
+        protected override async Task<IMailFolder> GetFolderAsync(ImapClient imapClient) => await imapClient.Inbox.GetSubfolderAsync("Junk");
     }
 }

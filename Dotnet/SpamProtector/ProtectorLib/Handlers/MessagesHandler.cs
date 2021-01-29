@@ -65,6 +65,7 @@ namespace ProtectorLib.Handlers
                 return await dbContext.Messages
                     .Where(x => x.Mailbox == mailbox)
                     .Where(x => !x.IsRemoved && x.PlannedRemoveTime <= dateTimeProvider.CurrentTime && x.RemoveTime == null)
+                    .OrderBy(x => x.PlannedRemoveTime)
                     .Take(20)
                     .ToListAsync();
             }

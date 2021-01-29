@@ -37,7 +37,7 @@ namespace ProtectorLib.Providers
 		protected virtual DateTime DeliveredAfterDate => dateTimeProvider.CurrentTime.Date.AddDays(-servicesConfig.CatalogDaysToCheck);
 		protected virtual DateTime DeliveredAfterDateScan => dateTimeProvider.CurrentTime.Date.AddDays(-servicesConfig.ScanDaysToCheck);
 
-		public async virtual Task CatalogAsync()
+		public virtual async Task CatalogAsync()
         {
 			var messages = new List<Message>();
 
@@ -72,7 +72,7 @@ namespace ProtectorLib.Providers
 			await messagesHandler.CatalogMessagesAsync(messages);
 		}
 
-		public async virtual Task<(int countBefore, int countAfter)> DeleteMessagesAsync()
+		public virtual async Task<(int countBefore, int countAfter)> DeleteMessagesAsync()
         {
 			var messagesToRemove = await messagesHandler.GetMessagesForRemovalAsync(MailBoxName);
 			var messagesRemoved = new List<int>();
@@ -111,7 +111,7 @@ namespace ProtectorLib.Providers
 			}
 		}
 
-		public virtual Task DetectSpamAsync() => throw new NotImplementedException();
+		public virtual Task<int> DetectSpamAsync() => throw new NotImplementedException();
 
         protected virtual Task<IMailFolder> GetFolderAsync(ImapClient imapClient) => throw new NotImplementedException();
     }
