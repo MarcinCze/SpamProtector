@@ -5,7 +5,7 @@ namespace ProtectorLib.Providers
     public interface IMailboxProvider
     {
         Task CatalogAsync();
-        Task DetectSpamAsync();
+        Task<int> DetectSpamAsync();
         Task<(int countBefore, int countAfter)> DeleteMessagesAsync();
     }
 }
