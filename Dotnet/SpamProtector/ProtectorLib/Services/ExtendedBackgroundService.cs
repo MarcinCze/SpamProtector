@@ -41,13 +41,12 @@ namespace ProtectorLib.Services
             {
                 logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
-                if (serviceRunScheduleProvider.ShouldRun(ServiceName))
+                if (await serviceRunScheduleProvider.ShouldRunAsync(ServiceName))
                 {
                     logger.LogInformation("Started operation");
                     stopWatch.Start();
 
                     var status = ServiceRunHistoryHandler.ServiceStatus.PROCESSING;
-
                     await serviceRunHistoryHandler.RegisterStartAsync(ServiceName, ServiceVersion);
 
                     try
@@ -64,6 +63,7 @@ namespace ProtectorLib.Services
                     finally
                     {
                         stopWatch.Stop();
+                        await serviceRunScheduleProvider.SaveLastRun(ServiceName);
                         await serviceRunHistoryHandler.RegisterFinishAsync(ServiceName, ServiceResultAdditionalInfo, status, $"{stopWatch.ElapsedMilliseconds} ms");
                         stopWatch.Reset();
                     }

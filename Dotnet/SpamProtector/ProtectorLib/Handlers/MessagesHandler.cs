@@ -19,8 +19,9 @@ namespace ProtectorLib.Handlers
             this.dateTimeProvider = dateTimeProvider;
         }
 
-        public async Task CatalogMessagesAsync(IEnumerable<Message> messages)
+        public async Task<int> CatalogMessagesAsync(IEnumerable<Message> messages)
         {
+            int msgInserted = 0;
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
@@ -29,12 +30,14 @@ namespace ProtectorLib.Handlers
                 {
                     msg.CatalogTime = dateTimeProvider.CurrentTime;
                     await dbContext.Messages.AddAsync(msg);
+                    msgInserted++;
                 }
 
                 await dbContext.SaveChangesAsync();
             }
 
             dbContext = null;
+            return msgInserted;
         }
 
         public async Task MarkForRemovalAsync()

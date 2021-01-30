@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 using System;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace ProtectorLib.Providers
 {
@@ -9,6 +10,7 @@ namespace ProtectorLib.Providers
     {
         private readonly IServiceScopeFactory serviceScopeFactory;
         private readonly IDateTimeProvider dateTimeProvider;
+        private ServiceRunSchedule cachedServiceRunSchedule;
 
         public ServiceRunScheduleProvider(IServiceScopeFactory serviceScopeFactory, IDateTimeProvider dateTimeProvider)
         {
@@ -16,14 +18,30 @@ namespace ProtectorLib.Providers
             this.dateTimeProvider = dateTimeProvider;
         }
 
-        public bool ShouldRun(string serviceName)
+        public async Task<bool> ShouldRunAsync(string serviceName)
+        {
+            if (cachedServiceRunSchedule == null)
+            {
+                using (var scope = serviceScopeFactory.CreateScope())
+                {
+                    var dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
+                    cachedServiceRunSchedule = await dbContext.ServiceRunSchedules.FirstAsync(x => x.ServiceName == serviceName);
+                }
+            }
+
+            var nextRun = CalculateNextRun(cachedServiceRunSchedule);
+            return nextRun <= dateTimeProvider.CurrentTime;
+        }
+
+        public async Task SaveLastRun(string serviceName)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
-                var nextRun = CalculateNextRun(dbContext.ServiceRunSchedules.First(x => x.ServiceName == serviceName));
 
-                return nextRun <= dateTimeProvider.CurrentTime;
+                cachedServiceRunSchedule = await dbContext.ServiceRunSchedules.FirstAsync(x => x.ServiceName == serviceName);
+                cachedServiceRunSchedule.LastRun = dateTimeProvider.CurrentTime;
+                await dbContext.SaveChangesAsync();
             }
         }
 

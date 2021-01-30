@@ -37,7 +37,7 @@ namespace ProtectorLib.Providers
 		protected virtual DateTime DeliveredAfterDate => dateTimeProvider.CurrentTime.Date.AddDays(-servicesConfig.CatalogDaysToCheck);
 		protected virtual DateTime DeliveredAfterDateScan => dateTimeProvider.CurrentTime.Date.AddDays(-servicesConfig.ScanDaysToCheck);
 
-		public virtual async Task CatalogAsync()
+		public virtual async Task<int> CatalogAsync()
         {
 			var messages = new List<Message>();
 
@@ -69,7 +69,7 @@ namespace ProtectorLib.Providers
 				await client.DisconnectAsync(true);
 			}
 
-			await messagesHandler.CatalogMessagesAsync(messages);
+			return await messagesHandler.CatalogMessagesAsync(messages);
 		}
 
 		public virtual async Task<(int countBefore, int countAfter)> DeleteMessagesAsync()

@@ -25,7 +25,8 @@ namespace CatalogMainService
 
         protected override async Task ExecuteBodyAsync()
         {
-            await mailboxProvider.CatalogAsync();
+            int msgInserted = await mailboxProvider.CatalogAsync();
+            ServiceResultAdditionalInfo = $"New messages in catalog: {msgInserted}";
         }
     }
 }
