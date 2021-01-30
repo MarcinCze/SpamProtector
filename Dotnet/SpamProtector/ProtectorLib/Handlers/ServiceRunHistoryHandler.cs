@@ -4,6 +4,7 @@ using ProtectorLib.Providers;
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace ProtectorLib.Handlers
 {
@@ -41,9 +42,6 @@ namespace ProtectorLib.Handlers
                 };
                 await dbContext.ServiceRunHistories.AddAsync(entry);
 
-                var service = dbContext.ServiceRunSchedules.FirstOrDefault(x => x.ServiceName == serviceName);
-                service.LastRun = dateTimeProvider.CurrentTime;
-
                 await dbContext.SaveChangesAsync();
                 entryId = entry.Id;
             }
@@ -58,7 +56,9 @@ namespace ProtectorLib.Handlers
                 var entry = dbContext.ServiceRunHistories
                     .OrderByDescending(x => x.StartTime)
                     .FirstOrDefault(x => x.Id == entryId);
-                    //.FirstOrDefault(x => x.ServiceName == serviceName && x.Status == ServiceStatus.PROCESSING.ToString());
+
+                if (entry == null)
+                    return;
 
                 entry.Status = endStatus.ToString();
                 entry.EndTime = dateTimeProvider.CurrentTime;

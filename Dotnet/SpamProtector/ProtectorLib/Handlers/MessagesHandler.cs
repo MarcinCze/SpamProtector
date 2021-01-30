@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using ProtectorLib.Providers;
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace ProtectorLib.Handlers
 {
@@ -21,22 +19,25 @@ namespace ProtectorLib.Handlers
             this.dateTimeProvider = dateTimeProvider;
         }
 
-        public async Task CatalogMessagesAsync(IEnumerable<Message> messages)
+        public async Task<int> CatalogMessagesAsync(IEnumerable<Message> messages)
         {
+            int msgInserted = 0;
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
 
-                foreach (var msg in messages.Where(m => !MessageExsists(m)))
+                foreach (var msg in messages.Where(m => !MessageExists(m)))
                 {
                     msg.CatalogTime = dateTimeProvider.CurrentTime;
                     await dbContext.Messages.AddAsync(msg);
+                    msgInserted++;
                 }
 
                 await dbContext.SaveChangesAsync();
             }
 
             dbContext = null;
+            return msgInserted;
         }
 
         public async Task MarkForRemovalAsync()
@@ -94,6 +95,6 @@ namespace ProtectorLib.Handlers
             }
         }
 
-        private bool MessageExsists(Message message) => dbContext.Messages.Any(x => x.ImapUid == message.ImapUid && x.Sender == message.Sender);
+        private bool MessageExists(Message message) => dbContext.Messages.Any(x => x.ImapUid == message.ImapUid && x.Sender == message.Sender);
     }
 }

@@ -1,7 +1,10 @@
-﻿namespace ProtectorLib.Providers
+﻿using System.Threading.Tasks;
+
+namespace ProtectorLib.Providers
 {
     public interface IServiceRunScheduleProvider
     {
-        bool ShouldRun(string serviceName);
+        Task<bool> ShouldRunAsync(string serviceName);
+        Task SaveLastRun(string serviceName);
     }
 }
