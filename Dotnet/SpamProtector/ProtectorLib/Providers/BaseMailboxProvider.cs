@@ -20,7 +20,7 @@ namespace ProtectorLib.Providers
         protected readonly IMessagesHandler messagesHandler;
 		protected readonly IDateTimeProvider dateTimeProvider;
 
-        public BaseMailboxProvider(
+        protected BaseMailboxProvider(
 			MailboxConfig mailboxConfig, 
 			ServicesConfig servicesConfig, 
 			IMessagesHandler messagesHandler, 
@@ -46,7 +46,7 @@ namespace ProtectorLib.Providers
 				await client.ConnectAsync(mailboxConfig.Url, mailboxConfig.Port, SecureSocketOptions.SslOnConnect);
 				await client.AuthenticateAsync(mailboxConfig.UserName, mailboxConfig.Password);
 
-				var junkFolder = await GetFolderAsync(client);
+				var junkFolder = await GetJunkFolderAsync(client);
 				await junkFolder.OpenAsync(FolderAccess.ReadOnly);
 				var uids = await junkFolder.SearchAsync(SearchQuery.DeliveredAfter(DeliveredAfterDate));
 
@@ -82,7 +82,7 @@ namespace ProtectorLib.Providers
 				await client.ConnectAsync(mailboxConfig.Url, mailboxConfig.Port, SecureSocketOptions.SslOnConnect);
 				await client.AuthenticateAsync(mailboxConfig.UserName, mailboxConfig.Password);
 
-				var junkFolder = await GetFolderAsync(client);
+				var junkFolder = await GetJunkFolderAsync(client);
 				await junkFolder.OpenAsync(FolderAccess.ReadWrite);
 				int countBefore = junkFolder.Count;
 
@@ -113,6 +113,6 @@ namespace ProtectorLib.Providers
 
 		public virtual Task<int> DetectSpamAsync() => throw new NotImplementedException();
 
-        protected virtual Task<IMailFolder> GetFolderAsync(ImapClient imapClient) => throw new NotImplementedException();
+        protected virtual Task<IMailFolder> GetJunkFolderAsync(ImapClient imapClient) => throw new NotImplementedException();
     }
 }

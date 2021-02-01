@@ -20,6 +20,6 @@ namespace ProtectorLib.Providers
             MailBoxName = "SPAM";
         }
 
-        protected override async Task<IMailFolder> GetFolderAsync(ImapClient imapClient) => await imapClient.GetFolderAsync("Inbox");
+        protected override async Task<IMailFolder> GetJunkFolderAsync(ImapClient imapClient) => await imapClient.GetFolderAsync("Inbox");
     }
 }

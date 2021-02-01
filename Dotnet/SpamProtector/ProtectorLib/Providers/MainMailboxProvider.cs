@@ -74,6 +74,6 @@ namespace ProtectorLib.Providers
             return false;
         }
 
-        protected override async Task<IMailFolder> GetFolderAsync(ImapClient imapClient) => await imapClient.Inbox.GetSubfolderAsync("Junk");
+        protected override async Task<IMailFolder> GetJunkFolderAsync(ImapClient imapClient) => await imapClient.Inbox.GetSubfolderAsync("Junk");
     }
 }
