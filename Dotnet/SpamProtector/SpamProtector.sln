@@ -15,6 +15,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatalogService", "CatalogSe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeleteService", "DeleteService\DeleteService.csproj", "{D28BEFD4-C504-4C04-AE54-6F8EABA9C3C0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{2F30D1E9-5D18-4892-B2D5-4DCF0DBEBDE6}"
+	ProjectSection(SolutionItems) = preProject
+		Shared\appsettings.Development.json = Shared\appsettings.Development.json
+		Shared\appsettings.json = Shared\appsettings.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
