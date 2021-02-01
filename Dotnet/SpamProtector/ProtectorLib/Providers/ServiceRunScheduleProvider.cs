@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ProtectorLib.Providers
@@ -10,38 +12,54 @@ namespace ProtectorLib.Providers
     {
         private readonly IServiceScopeFactory serviceScopeFactory;
         private readonly IDateTimeProvider dateTimeProvider;
-        private ServiceRunSchedule cachedServiceRunSchedule;
+        private List<ServiceRunSchedule> cachedServices;
 
         public ServiceRunScheduleProvider(IServiceScopeFactory serviceScopeFactory, IDateTimeProvider dateTimeProvider)
         {
             this.serviceScopeFactory = serviceScopeFactory;
             this.dateTimeProvider = dateTimeProvider;
+            this.cachedServices = new List<ServiceRunSchedule>();
         }
 
-        public async Task<bool> ShouldRunAsync(string serviceName)
+        public async Task<bool> ShouldRunAsync(string serviceName) => await ShouldRunAsync(serviceName, null);
+
+        public async Task<bool> ShouldRunAsync(string serviceName, string branchName)
         {
-            if (cachedServiceRunSchedule == null)
+            if (GetCachedService(serviceName, branchName) == null)
             {
                 using (var scope = serviceScopeFactory.CreateScope())
                 {
                     var dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
-                    cachedServiceRunSchedule = await dbContext.ServiceRunSchedules.FirstAsync(x => x.ServiceName == serviceName);
+                    ServiceRunSchedule service = await dbContext.ServiceRunSchedules.FirstOrDefaultAsync(x => x.ServiceName == serviceName && x.Branch.Equals(branchName) && x.IsEnabled);
+
+                    cachedServices.Add(service ?? new ServiceRunSchedule
+                    {
+                        ServiceName = serviceName,
+                        Branch = branchName,
+                        IsEnabled = false
+                    });
                 }
             }
 
-            var nextRun = CalculateNextRun(cachedServiceRunSchedule);
+            if (!GetCachedService(serviceName, branchName).IsEnabled)
+                return false;
+
+            var nextRun = CalculateNextRun(GetCachedService(serviceName, branchName));
             return nextRun <= dateTimeProvider.CurrentTime;
         }
 
-        public async Task SaveLastRun(string serviceName)
+        public async Task SaveLastRun(string serviceName) => await SaveLastRun(serviceName, null);
+
+        public async Task SaveLastRun(string serviceName, string branchName)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
 
-                cachedServiceRunSchedule = await dbContext.ServiceRunSchedules.FirstAsync(x => x.ServiceName == serviceName);
-                cachedServiceRunSchedule.LastRun = dateTimeProvider.CurrentTime;
+                var serviceEntry = await dbContext.ServiceRunSchedules.FirstAsync(x => x.ServiceName.Equals(serviceName) && x.Branch.Equals(branchName));
+                serviceEntry.LastRun = dateTimeProvider.CurrentTime;
                 await dbContext.SaveChangesAsync();
+                cachedServices = new List<ServiceRunSchedule>();
             }
         }
 
@@ -56,5 +74,8 @@ namespace ProtectorLib.Providers
                 .AddMinutes(service.RunEveryMinutes)
                 .AddSeconds(service.RunEverySeconds);
         }
+
+        protected ServiceRunSchedule GetCachedService(string serviceName, string branchName) =>
+            cachedServices.FirstOrDefault(x => x.ServiceName.Equals(serviceName) && x.Branch.Equals(branchName));
     }
 }

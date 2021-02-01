@@ -4,7 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ProtectorLib;
 using ProtectorLib.Configuration;
+using ProtectorLib.Controllers;
 using ProtectorLib.Extensions;
+using ProtectorLib.Handlers;
+using ProtectorLib.Providers;
 
 namespace ScanService
 {
@@ -21,10 +24,12 @@ namespace ScanService
                 .ConfigureServices((hostContext, services) =>
                 {
                     services
-                        .AddSingleton(hostContext.Configuration.GetSection("Mailboxes").GetSection("MainBox").Get<MailboxConfig>())
+                        .AddSingleton(hostContext.Configuration.GetSection("Mailboxes").Get<MailboxesConfig>())
                         .AddSingleton(hostContext.Configuration.GetSection("Services").Get<ServicesConfig>())
                         .AddDbContext<SpamProtectorDBContext>(options => options.UseSqlServer(hostContext.Configuration.GetConnectionString("SpamProtectorDBContext")))
-                        .AddMainMailboxProvider()
+                        .AddMailboxController()
+                        .AddMailboxProviders()
+                        .AddMailboxRequiredClasses()
                         .AddServiceRunHandlers()
                         .AddHostedService<Worker>();
                 });

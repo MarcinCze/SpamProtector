@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using ProtectorLib.Controllers;
 using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 
@@ -6,19 +7,23 @@ namespace ProtectorLib.Extensions
 {
     public static class IServiceCollectionExtension
     {
-        public static IServiceCollection AddMainMailboxProvider(this IServiceCollection services)
+        public static IServiceCollection AddMailboxProviders(this IServiceCollection services)
         {
             services
-                .AddMailboxRequiredClasses()
-                .AddSingleton<IMailboxProvider, MainMailboxProvider>();
+                .AddSingleton<IMailboxProvider, MainMailboxProvider>()
+                .AddSingleton<IMailboxProvider, AdsMailboxProvider>()
+                .AddSingleton<IMailboxProvider, WorkMailboxProvider>()
+                .AddSingleton<IMailboxProvider, SpamMailboxProvider>();
+            
             return services;
         }
 
-        public static IServiceCollection AddSpamMailboxProvider(this IServiceCollection services)
+        public static IServiceCollection AddMailboxRequiredClasses(this IServiceCollection services)
         {
             services
-                .AddMailboxRequiredClasses()
-                .AddSingleton<IMailboxProvider, SpamMailboxProvider>();
+                .AddSingleton<IDateTimeProvider, DateTimeProvider>()
+                .AddSingleton<IMessagesHandler, MessagesHandler>()
+                .AddSingleton<IRulesProvider, RulesProvider>();
             return services;
         }
 
@@ -30,12 +35,9 @@ namespace ProtectorLib.Extensions
             return services;
         }
 
-        private static IServiceCollection AddMailboxRequiredClasses(this IServiceCollection services)
+        public static IServiceCollection AddMailboxController(this IServiceCollection services)
         {
-            services
-                .AddSingleton<IDateTimeProvider, DateTimeProvider>()
-                .AddSingleton<IMessagesHandler, MessagesHandler>()
-                .AddSingleton<IRulesProvider, RulesProvider>();
+            services.AddSingleton<IMailboxController, MailboxController>();
             return services;
         }
     }

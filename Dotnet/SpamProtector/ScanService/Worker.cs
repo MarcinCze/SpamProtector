@@ -3,20 +3,21 @@ using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 using ProtectorLib.Services;
 using System.Threading.Tasks;
+using ProtectorLib.Controllers;
 
 namespace ScanService
 {
     public class Worker : ExtendedBackgroundService
     {
-        private readonly IMailboxProvider mailboxProvider;
+        private readonly IMailboxController controller;
 
         public Worker(
             ILogger<Worker> logger,
-            IMailboxProvider mailboxProvider,
+            IMailboxController controller,
             IServiceRunHistoryHandler serviceRunHistoryHandler,
             IServiceRunScheduleProvider serviceRunScheduleProvider) : base (logger, serviceRunHistoryHandler, serviceRunScheduleProvider)
         {
-            this.mailboxProvider = mailboxProvider;
+            this.controller = controller;
         }
 
         protected override string ServiceName => nameof(ScanService);
@@ -24,8 +25,16 @@ namespace ScanService
 
         protected override async Task ExecuteBodyAsync()
         {
-            int newSpamCounter = await mailboxProvider.DetectSpamAsync();
+            int newSpamCounter = await controller.CurrentMailboxProvider.DetectSpamAsync();
             ServiceResultAdditionalInfo = $"Number of detected new spam mails: {newSpamCounter}";
+        }
+
+        protected override Task<bool> ShouldItRunAsync(string serviceName, string branchName = null) =>
+            serviceRunScheduleProvider.ShouldRunAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName);
+
+        protected override void FinishActions()
+        {
+            controller.SetNextProvider();
         }
     }
 }

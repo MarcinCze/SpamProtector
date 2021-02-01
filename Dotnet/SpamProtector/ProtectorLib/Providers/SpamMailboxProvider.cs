@@ -10,15 +10,21 @@ namespace ProtectorLib.Providers
 {
     public class SpamMailboxProvider : BaseMailboxProvider
     {
+        private readonly MailboxesConfig mailboxesConfig;
+
         public SpamMailboxProvider(
-            MailboxConfig mailboxConfig, 
+            MailboxesConfig mailboxesConfig, 
             ServicesConfig servicesConfig, 
             IMessagesHandler messagesHandler,
             IDateTimeProvider dateTimeProvider) 
-            : base(mailboxConfig, servicesConfig, messagesHandler, dateTimeProvider)
+            : base(servicesConfig, messagesHandler, dateTimeProvider)
         {
-            MailBoxName = "SPAM";
+            this.mailboxesConfig = mailboxesConfig;
         }
+
+        public override string MailBoxName => "SPAM";
+
+        protected override MailboxConfig MailboxConfig => mailboxesConfig.SpamBox;
 
         protected override async Task<IMailFolder> GetJunkFolderAsync(ImapClient imapClient) => await imapClient.GetFolderAsync("Inbox");
     }

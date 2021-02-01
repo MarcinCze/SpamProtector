@@ -33,6 +33,12 @@ namespace ProtectorLib.Services
 
         protected abstract Task ExecuteBodyAsync();
 
+        protected virtual async Task<bool> ShouldItRunAsync(string serviceName, string branchName = null) =>
+            await serviceRunScheduleProvider.ShouldRunAsync(ServiceName);
+
+        protected virtual void FinishActions()
+        { }
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var stopWatch = new Stopwatch();
@@ -41,7 +47,7 @@ namespace ProtectorLib.Services
             {
                 logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
-                if (await serviceRunScheduleProvider.ShouldRunAsync(ServiceName))
+                if (await ShouldItRunAsync(ServiceName))
                 {
                     logger.LogInformation("Started operation");
                     stopWatch.Start();
@@ -66,6 +72,7 @@ namespace ProtectorLib.Services
                         await serviceRunScheduleProvider.SaveLastRun(ServiceName);
                         await serviceRunHistoryHandler.RegisterFinishAsync(ServiceName, ServiceResultAdditionalInfo, status, $"{stopWatch.ElapsedMilliseconds} ms");
                         stopWatch.Reset();
+                        FinishActions();
                     }
 
                     logger.LogInformation("Service run done");

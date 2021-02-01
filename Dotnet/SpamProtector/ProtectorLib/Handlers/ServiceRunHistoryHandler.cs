@@ -4,7 +4,6 @@ using ProtectorLib.Providers;
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace ProtectorLib.Handlers
 {
@@ -27,7 +26,10 @@ namespace ProtectorLib.Handlers
             this.dateTimeProvider = dateTimeProvider;
         }
 
-        public async Task RegisterStartAsync(string serviceName, string serviceVersion)
+        public async Task RegisterStartAsync(string serviceName, string serviceVersion) =>
+            await RegisterStartAsync(serviceName, serviceVersion, null);
+
+        public async Task RegisterStartAsync(string serviceName, string serviceVersion, string branchName)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
@@ -37,17 +39,21 @@ namespace ProtectorLib.Handlers
                 {
                     ServiceName = serviceName,
                     ServiceVersion = GetVersionEntry(serviceVersion),
+                    Branch = branchName,
                     Status = ServiceStatus.PROCESSING.ToString(),
                     StartTime = dateTimeProvider.CurrentTime
                 };
+                
                 await dbContext.ServiceRunHistories.AddAsync(entry);
-
                 await dbContext.SaveChangesAsync();
                 entryId = entry.Id;
             }
         }
 
-        public async Task RegisterFinishAsync(string serviceName, string additionalData, ServiceStatus endStatus, string executionTime)
+        public async Task RegisterFinishAsync(string serviceName, string additionalData, ServiceStatus endStatus, string executionTime) =>
+            await RegisterFinishAsync(serviceName, null, additionalData, endStatus, executionTime);
+
+        public async Task RegisterFinishAsync(string serviceName, string branchName, string additionalData, ServiceStatus endStatus, string executionTime)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
@@ -55,7 +61,7 @@ namespace ProtectorLib.Handlers
 
                 var entry = dbContext.ServiceRunHistories
                     .OrderByDescending(x => x.StartTime)
-                    .FirstOrDefault(x => x.Id == entryId);
+                    .FirstOrDefault(x => x.Id == entryId && x.ServiceName.Equals(serviceName) && x.Branch.Equals(branchName));
 
                 if (entry == null)
                     return;
