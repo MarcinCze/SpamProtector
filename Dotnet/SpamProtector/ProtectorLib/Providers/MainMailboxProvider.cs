@@ -15,27 +15,32 @@ namespace ProtectorLib.Providers
 {
     public class MainMailboxProvider : BaseMailboxProvider
     {
+        private readonly MailboxesConfig mailboxesConfig;
         private readonly IRulesProvider rulesProvider;
 
 		public MainMailboxProvider(
-            MailboxConfig mailboxConfig, 
+            MailboxesConfig mailboxesConfig,
             ServicesConfig servicesConfig, 
             IMessagesHandler messagesHandler,
             IRulesProvider rulesProvider,
 			IDateTimeProvider dateTimeProvider) 
-			: base(mailboxConfig, servicesConfig, messagesHandler, dateTimeProvider)
+			: base(servicesConfig, messagesHandler, dateTimeProvider)
         {
-			MailBoxName = "MARCIN";
+            this.mailboxesConfig = mailboxesConfig;
             this.rulesProvider = rulesProvider;
 		}
+
+        public override string MailBoxName => "MARCIN";
+
+        protected override MailboxConfig MailboxConfig => mailboxesConfig.MainBox;
 
         public override async Task<int> DetectSpamAsync()
         {
             int newSpamCounter = 0;
 			using (var client = new ImapClient())
 			{
-				await client.ConnectAsync(mailboxConfig.Url, mailboxConfig.Port, SecureSocketOptions.SslOnConnect);
-				await client.AuthenticateAsync(mailboxConfig.UserName, mailboxConfig.Password);
+				await client.ConnectAsync(MailboxConfig.Url, MailboxConfig.Port, SecureSocketOptions.SslOnConnect);
+				await client.AuthenticateAsync(MailboxConfig.UserName, MailboxConfig.Password);
 				await client.Inbox.OpenAsync(FolderAccess.ReadWrite);
 				var destinationFolder = await client.Inbox.GetSubfolderAsync("Junk");
 
@@ -74,6 +79,6 @@ namespace ProtectorLib.Providers
             return false;
         }
 
-        protected override async Task<IMailFolder> GetFolderAsync(ImapClient imapClient) => await imapClient.Inbox.GetSubfolderAsync("Junk");
+        protected override async Task<IMailFolder> GetJunkFolderAsync(ImapClient imapClient) => await imapClient.Inbox.GetSubfolderAsync("Junk");
     }
 }

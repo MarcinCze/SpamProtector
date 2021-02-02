@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <UserSecretsId>dotnet-MarkingService-CAEEBA6F-88B3-459A-A536-58F2B06D4BD4</UserSecretsId>
+    <UserSecretsId>dotnet-CatalogService-69DED923-769A-4355-97B2-AB11D7DCFE07</UserSecretsId>
     <FileVersion>1.0.7.0</FileVersion>
     <Version>1.0.7.0</Version>
   </PropertyGroup>

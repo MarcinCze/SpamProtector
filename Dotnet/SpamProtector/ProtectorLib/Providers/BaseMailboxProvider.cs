@@ -15,24 +15,22 @@ namespace ProtectorLib.Providers
 {
     public abstract class BaseMailboxProvider : IMailboxProvider
     {
-        protected readonly MailboxConfig mailboxConfig;
         protected readonly ServicesConfig servicesConfig;
         protected readonly IMessagesHandler messagesHandler;
 		protected readonly IDateTimeProvider dateTimeProvider;
 
-        public BaseMailboxProvider(
-			MailboxConfig mailboxConfig, 
-			ServicesConfig servicesConfig, 
+        protected BaseMailboxProvider(
+            ServicesConfig servicesConfig, 
 			IMessagesHandler messagesHandler, 
 			IDateTimeProvider dateTimeProvider)
         {
-            this.mailboxConfig = mailboxConfig;
             this.servicesConfig = servicesConfig;
             this.messagesHandler = messagesHandler;
 			this.dateTimeProvider = dateTimeProvider;
         }
 
-		protected string MailBoxName { get; set; }
+		public abstract string MailBoxName { get; }
+		protected abstract MailboxConfig MailboxConfig { get; }
 
 		protected virtual DateTime DeliveredAfterDate => dateTimeProvider.CurrentTime.Date.AddDays(-servicesConfig.CatalogDaysToCheck);
 		protected virtual DateTime DeliveredAfterDateScan => dateTimeProvider.CurrentTime.Date.AddDays(-servicesConfig.ScanDaysToCheck);
@@ -43,10 +41,10 @@ namespace ProtectorLib.Providers
 
 			using (var client = new ImapClient())
 			{
-				await client.ConnectAsync(mailboxConfig.Url, mailboxConfig.Port, SecureSocketOptions.SslOnConnect);
-				await client.AuthenticateAsync(mailboxConfig.UserName, mailboxConfig.Password);
+				await client.ConnectAsync(MailboxConfig.Url, MailboxConfig.Port, SecureSocketOptions.SslOnConnect);
+				await client.AuthenticateAsync(MailboxConfig.UserName, MailboxConfig.Password);
 
-				var junkFolder = await GetFolderAsync(client);
+				var junkFolder = await GetJunkFolderAsync(client);
 				await junkFolder.OpenAsync(FolderAccess.ReadOnly);
 				var uids = await junkFolder.SearchAsync(SearchQuery.DeliveredAfter(DeliveredAfterDate));
 
@@ -79,10 +77,10 @@ namespace ProtectorLib.Providers
 
 			using (var client = new ImapClient())
 			{
-				await client.ConnectAsync(mailboxConfig.Url, mailboxConfig.Port, SecureSocketOptions.SslOnConnect);
-				await client.AuthenticateAsync(mailboxConfig.UserName, mailboxConfig.Password);
+				await client.ConnectAsync(MailboxConfig.Url, MailboxConfig.Port, SecureSocketOptions.SslOnConnect);
+				await client.AuthenticateAsync(MailboxConfig.UserName, MailboxConfig.Password);
 
-				var junkFolder = await GetFolderAsync(client);
+				var junkFolder = await GetJunkFolderAsync(client);
 				await junkFolder.OpenAsync(FolderAccess.ReadWrite);
 				int countBefore = junkFolder.Count;
 
@@ -113,6 +111,6 @@ namespace ProtectorLib.Providers
 
 		public virtual Task<int> DetectSpamAsync() => throw new NotImplementedException();
 
-        protected virtual Task<IMailFolder> GetFolderAsync(ImapClient imapClient) => throw new NotImplementedException();
+        protected virtual Task<IMailFolder> GetJunkFolderAsync(ImapClient imapClient) => throw new NotImplementedException();
     }
 }

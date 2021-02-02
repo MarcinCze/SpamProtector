@@ -33,6 +33,21 @@ namespace ProtectorLib.Services
 
         protected abstract Task ExecuteBodyAsync();
 
+        protected virtual async Task<bool> ShouldItRunAsync() =>
+            await serviceRunScheduleProvider.ShouldRunAsync(ServiceName);
+
+        protected virtual async Task SaveStartAsync()
+            => await serviceRunHistoryHandler.RegisterStartAsync(ServiceName, ServiceVersion);
+
+        protected virtual async Task SaveFinishAsync(ServiceRunHistoryHandler.ServiceStatus status, string executionTime)
+            => await serviceRunHistoryHandler.RegisterFinishAsync(ServiceName, ServiceResultAdditionalInfo, status, executionTime);
+
+        protected virtual async Task SaveLastRunAsync()
+            => await serviceRunScheduleProvider.SaveLastRunAsync(ServiceName);
+
+        protected virtual void FinishActions()
+        { }
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var stopWatch = new Stopwatch();
@@ -41,13 +56,13 @@ namespace ProtectorLib.Services
             {
                 logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
-                if (await serviceRunScheduleProvider.ShouldRunAsync(ServiceName))
+                if (await ShouldItRunAsync())
                 {
                     logger.LogInformation("Started operation");
                     stopWatch.Start();
 
                     var status = ServiceRunHistoryHandler.ServiceStatus.PROCESSING;
-                    await serviceRunHistoryHandler.RegisterStartAsync(ServiceName, ServiceVersion);
+                    await SaveStartAsync();
 
                     try
                     {
@@ -63,13 +78,15 @@ namespace ProtectorLib.Services
                     finally
                     {
                         stopWatch.Stop();
-                        await serviceRunScheduleProvider.SaveLastRun(ServiceName);
-                        await serviceRunHistoryHandler.RegisterFinishAsync(ServiceName, ServiceResultAdditionalInfo, status, $"{stopWatch.ElapsedMilliseconds} ms");
+                        await SaveLastRunAsync();
+                        await SaveFinishAsync(status, $"{stopWatch.ElapsedMilliseconds} ms");
                         stopWatch.Reset();
                     }
 
                     logger.LogInformation("Service run done");
                 }
+
+                FinishActions();
 
                 await Task.Delay(new TimeSpan(0, 0, 30), stoppingToken);
             }

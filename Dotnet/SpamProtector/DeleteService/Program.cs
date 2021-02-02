@@ -4,9 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ProtectorLib;
 using ProtectorLib.Configuration;
+using ProtectorLib.Controllers;
 using ProtectorLib.Extensions;
+using ProtectorLib.Handlers;
+using ProtectorLib.Providers;
 
-namespace CatalogSpamService
+namespace DeleteService
 {
     public class Program
     {
@@ -21,10 +24,12 @@ namespace CatalogSpamService
                 .ConfigureServices((hostContext, services) =>
                 {
                     services
-                        .AddSingleton(hostContext.Configuration.GetSection("Mailboxes").GetSection("SpamBox").Get<MailboxConfig>())
+                        .AddSingleton(hostContext.Configuration.GetSection("Mailboxes").Get<MailboxesConfig>())
                         .AddSingleton(hostContext.Configuration.GetSection("Services").Get<ServicesConfig>())
                         .AddDbContext<SpamProtectorDBContext>(options => options.UseSqlServer(hostContext.Configuration.GetConnectionString("SpamProtectorDBContext")))
-                        .AddSpamMailboxProvider()
+                        .AddMailboxController()
+                        .AddMailboxProviders()
+                        .AddMailboxRequiredClasses()
                         .AddServiceRunHandlers()
                         .AddHostedService<Worker>();
                 });

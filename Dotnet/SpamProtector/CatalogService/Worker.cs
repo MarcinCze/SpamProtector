@@ -5,7 +5,7 @@ using ProtectorLib.Services;
 using System.Threading.Tasks;
 using ProtectorLib.Controllers;
 
-namespace ScanService
+namespace CatalogService
 {
     public class Worker : ExtendedBackgroundService
     {
@@ -15,22 +15,22 @@ namespace ScanService
             ILogger<Worker> logger,
             IMailboxController controller,
             IServiceRunHistoryHandler serviceRunHistoryHandler,
-            IServiceRunScheduleProvider serviceRunScheduleProvider) : base (logger, serviceRunHistoryHandler, serviceRunScheduleProvider)
+            IServiceRunScheduleProvider serviceRunScheduleProvider) : base(logger, serviceRunHistoryHandler, serviceRunScheduleProvider)
         {
             this.controller = controller;
         }
 
-        protected override string ServiceName => nameof(ScanService);
+        protected override string ServiceName => nameof(CatalogService);
         protected override string ServiceVersion => GetType().Assembly.GetName().Version?.ToString();
 
         protected override async Task ExecuteBodyAsync()
         {
-            int newSpamCounter = await controller.CurrentMailboxProvider.DetectSpamAsync();
-            ServiceResultAdditionalInfo = $"Number of detected new spam mails: {newSpamCounter}";
+            int msgInserted = await controller.CurrentMailboxProvider.CatalogAsync();
+            ServiceResultAdditionalInfo = $"New messages in catalog: {msgInserted}";
         }
 
         protected override Task<bool> ShouldItRunAsync() =>
-            serviceRunScheduleProvider.ShouldRunAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName);
+           serviceRunScheduleProvider.ShouldRunAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName);
 
         protected override async Task SaveStartAsync()
             => await serviceRunHistoryHandler.RegisterStartAsync(ServiceName, ServiceVersion, controller.CurrentMailboxProvider.MailBoxName);
