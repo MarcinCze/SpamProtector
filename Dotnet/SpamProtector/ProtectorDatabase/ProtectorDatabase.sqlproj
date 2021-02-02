@@ -64,5 +64,6 @@
     <Build Include="RuleUsageStats.sql" />
     <Build Include="ServiceRunHistory.sql" />
     <Build Include="ServiceRunSchedule.sql" />
+    <Build Include="vRulesUsage.sql" />
   </ItemGroup>
 </Project>
