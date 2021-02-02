@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-CatalogService-69DED923-769A-4355-97B2-AB11D7DCFE07</UserSecretsId>
-    <FileVersion>1.0.5.0</FileVersion>
-    <Version>1.0.5.0</Version>
+    <FileVersion>1.0.7.0</FileVersion>
+    <Version>1.0.7.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
