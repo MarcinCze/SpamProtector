@@ -1,0 +1,1 @@
+dotnet ef dbcontext scaffold "Data Source=.;Initial Catalog=SpamProtectorDB;Integrated Security=True" Microsoft.EntityFrameworkCore.SqlServer --force

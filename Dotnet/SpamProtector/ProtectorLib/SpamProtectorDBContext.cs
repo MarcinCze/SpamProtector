@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable disable
 
 namespace ProtectorLib
 {
@@ -22,7 +26,7 @@ namespace ProtectorLib
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("Relational:Collation", "Polish_CI_AS");
+            modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
 
             modelBuilder.Entity<Message>(entity =>
             {
@@ -78,6 +82,8 @@ namespace ProtectorLib
             {
                 entity.ToTable("ServiceRunHistory");
 
+                entity.Property(e => e.Branch).HasMaxLength(50);
+
                 entity.Property(e => e.EndTime).HasColumnType("datetime");
 
                 entity.Property(e => e.ExecutionTime).HasMaxLength(200);
@@ -102,6 +108,8 @@ namespace ProtectorLib
             modelBuilder.Entity<ServiceRunSchedule>(entity =>
             {
                 entity.ToTable("ServiceRunSchedule");
+
+                entity.Property(e => e.Branch).HasMaxLength(50);
 
                 entity.Property(e => e.ServiceName)
                     .IsRequired()

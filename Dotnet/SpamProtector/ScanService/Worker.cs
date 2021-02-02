@@ -29,8 +29,17 @@ namespace ScanService
             ServiceResultAdditionalInfo = $"Number of detected new spam mails: {newSpamCounter}";
         }
 
-        protected override Task<bool> ShouldItRunAsync(string serviceName, string branchName = null) =>
+        protected override Task<bool> ShouldItRunAsync() =>
             serviceRunScheduleProvider.ShouldRunAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName);
+
+        protected override async Task SaveStartAsync()
+            => await serviceRunHistoryHandler.RegisterStartAsync(ServiceName, ServiceVersion, controller.CurrentMailboxProvider.MailBoxName);
+
+        protected override async Task SaveFinishAsync(ServiceRunHistoryHandler.ServiceStatus status, string executionTime)
+            => await serviceRunHistoryHandler.RegisterFinishAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName, ServiceResultAdditionalInfo, status, executionTime);
+
+        protected override async Task SaveLastRunAsync()
+            => await serviceRunScheduleProvider.SaveLastRunAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName);
 
         protected override void FinishActions()
         {

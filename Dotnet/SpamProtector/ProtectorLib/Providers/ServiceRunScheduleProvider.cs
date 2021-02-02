@@ -48,15 +48,19 @@ namespace ProtectorLib.Providers
             return nextRun <= dateTimeProvider.CurrentTime;
         }
 
-        public async Task SaveLastRun(string serviceName) => await SaveLastRun(serviceName, null);
+        public async Task SaveLastRunAsync(string serviceName) => await SaveLastRunAsync(serviceName, null);
 
-        public async Task SaveLastRun(string serviceName, string branchName)
+        public async Task SaveLastRunAsync(string serviceName, string branchName)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
 
-                var serviceEntry = await dbContext.ServiceRunSchedules.FirstAsync(x => x.ServiceName.Equals(serviceName) && x.Branch.Equals(branchName));
+                var serviceEntry = await dbContext.ServiceRunSchedules.FirstOrDefaultAsync(x => x.ServiceName.Equals(serviceName) && x.Branch.Equals(branchName));
+
+                if (serviceName == null)
+                    return;
+
                 serviceEntry.LastRun = dateTimeProvider.CurrentTime;
                 await dbContext.SaveChangesAsync();
                 cachedServices = new List<ServiceRunSchedule>();

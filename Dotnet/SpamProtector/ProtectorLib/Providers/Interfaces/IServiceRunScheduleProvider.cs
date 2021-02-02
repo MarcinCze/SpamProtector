@@ -6,7 +6,7 @@ namespace ProtectorLib.Providers
     {
         Task<bool> ShouldRunAsync(string serviceName);
         Task<bool> ShouldRunAsync(string serviceName, string branchName);
-        Task SaveLastRun(string serviceName);
-        Task SaveLastRun(string serviceName, string branchName);
+        Task SaveLastRunAsync(string serviceName);
+        Task SaveLastRunAsync(string serviceName, string branchName);
     }
 }

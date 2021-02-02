@@ -9,6 +9,8 @@ using ProtectorLib.Extensions;
 using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 
+using System.IO;
+
 namespace ScanService
 {
     public class Program
@@ -21,6 +23,11 @@ namespace ScanService
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .UseWindowsService()
+                .ConfigureAppConfiguration((hostContext, config) =>
+                {
+                    var sharedFolder = Path.Combine(hostContext.HostingEnvironment.ContentRootPath, "..", "Shared");
+                    config.AddJsonFile(Path.Combine(sharedFolder, "appsettings.json"), optional: true);
+                })
                 .ConfigureServices((hostContext, services) =>
                 {
                     services
