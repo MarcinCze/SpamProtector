@@ -2,6 +2,8 @@ using Microsoft.Extensions.Logging;
 using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 using ProtectorLib.Services;
+
+using System;
 using System.Threading.Tasks;
 
 namespace MarkingService
@@ -21,6 +23,7 @@ namespace MarkingService
 
         protected override string ServiceName => nameof(MarkingService);
         protected override string ServiceVersion => GetType().Assembly.GetName().Version?.ToString();
+        protected override TimeSpan StartDelay => ProtectorLib.Configuration.StartDelay.MarkingService;
 
         protected override async Task ExecuteBodyAsync()
         {
