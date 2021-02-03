@@ -51,12 +51,10 @@ function Analyze-File
 }
 
 $files = @()
-$files += "$pathPrefix\CatalogMainService\CatalogMainService.csproj"
-$files += "$pathPrefix\CatalogSpamService\CatalogSpamService.csproj"
+$files += "$pathPrefix\CatalogService\CatalogService.csproj"
 $files += "$pathPrefix\ScanService\ScanService.csproj"
 $files += "$pathPrefix\ProtectorLib\ProtectorLib.csproj"
-$files += "$pathPrefix\DeleteMainService\DeleteMainService.csproj"
-$files += "$pathPrefix\DeleteSpamService\DeleteSpamService.csproj"
+$files += "$pathPrefix\DeleteService\DeleteService.csproj"
 $files += "$pathPrefix\MarkingService\MarkingService.csproj"
 
 foreach ($file in $files)
