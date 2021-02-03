@@ -80,6 +80,6 @@ namespace ProtectorLib.Providers
         }
 
         protected ServiceRunSchedule GetCachedService(string serviceName, string branchName) =>
-            cachedServices.FirstOrDefault(x => x.ServiceName.Equals(serviceName) && x.Branch.Equals(branchName));
+            cachedServices.FirstOrDefault(x => x.ServiceName.Equals(serviceName) && x.Branch == branchName);
     }
 }
