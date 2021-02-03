@@ -4,6 +4,7 @@ using ProtectorLib.Providers;
 using ProtectorLib.Services;
 using System.Threading.Tasks;
 using ProtectorLib.Controllers;
+using System;
 
 namespace CatalogService
 {
@@ -22,6 +23,7 @@ namespace CatalogService
 
         protected override string ServiceName => nameof(CatalogService);
         protected override string ServiceVersion => GetType().Assembly.GetName().Version?.ToString();
+        protected override TimeSpan StartDelay => ProtectorLib.Configuration.StartDelay.CatalogService;
 
         protected override async Task ExecuteBodyAsync()
         {

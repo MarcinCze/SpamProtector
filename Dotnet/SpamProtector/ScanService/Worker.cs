@@ -1,9 +1,12 @@
 using Microsoft.Extensions.Logging;
+
+using ProtectorLib.Controllers;
 using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 using ProtectorLib.Services;
+
+using System;
 using System.Threading.Tasks;
-using ProtectorLib.Controllers;
 
 namespace ScanService
 {
@@ -22,6 +25,8 @@ namespace ScanService
 
         protected override string ServiceName => nameof(ScanService);
         protected override string ServiceVersion => GetType().Assembly.GetName().Version?.ToString();
+
+        protected override TimeSpan StartDelay => ProtectorLib.Configuration.StartDelay.ScanService;
 
         protected override async Task ExecuteBodyAsync()
         {
