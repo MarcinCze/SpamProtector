@@ -9,5 +9,7 @@ namespace ProtectorLib.Handlers
         Task<int> CatalogMessagesAsync(IEnumerable<Message> messages);
         Task<IEnumerable<Message>> GetMessagesForRemovalAsync(string mailbox);
         Task MarkMessagesAsRemovedAsync(IEnumerable<int> removedMsgIds);
+        Task<IEnumerable<Message>> GetRemovedMessagesForCheckingAsync();
+        Task SetMessagesAsPermamentlyRemovedAsync(IEnumerable<int> removedMsgsIds);
     }
 }
