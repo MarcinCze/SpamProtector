@@ -3,6 +3,8 @@ using MailKit.Net.Imap;
 using MailKit.Search;
 using MailKit.Security;
 
+using Microsoft.Extensions.Logging;
+
 using ProtectorLib.Configuration;
 using ProtectorLib.Handlers;
 
@@ -18,12 +20,15 @@ namespace ProtectorLib.Providers
         protected readonly ServicesConfig servicesConfig;
         protected readonly IMessagesHandler messagesHandler;
 		protected readonly IDateTimeProvider dateTimeProvider;
+		protected readonly ILogger logger;
 
         protected BaseMailboxProvider(
             ServicesConfig servicesConfig, 
 			IMessagesHandler messagesHandler, 
-			IDateTimeProvider dateTimeProvider)
+			IDateTimeProvider dateTimeProvider,
+			ILogger logger)
         {
+			this.logger = logger;
             this.servicesConfig = servicesConfig;
             this.messagesHandler = messagesHandler;
 			this.dateTimeProvider = dateTimeProvider;
@@ -43,6 +48,7 @@ namespace ProtectorLib.Providers
 			{
 				await client.ConnectAsync(MailboxConfig.Url, MailboxConfig.Port, SecureSocketOptions.SslOnConnect);
 				await client.AuthenticateAsync(MailboxConfig.UserName, MailboxConfig.Password);
+				logger.LogInformation("Client connected & authorized");
 
 				var junkFolder = await GetJunkFolderAsync(client);
 				await junkFolder.OpenAsync(FolderAccess.ReadOnly);
@@ -65,6 +71,7 @@ namespace ProtectorLib.Providers
 				}
 
 				await client.DisconnectAsync(true);
+				logger.LogInformation("Client disconnected");
 			}
 
 			return await messagesHandler.CatalogMessagesAsync(messages);
@@ -79,6 +86,7 @@ namespace ProtectorLib.Providers
 			{
 				await client.ConnectAsync(MailboxConfig.Url, MailboxConfig.Port, SecureSocketOptions.SslOnConnect);
 				await client.AuthenticateAsync(MailboxConfig.UserName, MailboxConfig.Password);
+				logger.LogInformation("Client connected & authorized");
 
 				var junkFolder = await GetJunkFolderAsync(client);
 				await junkFolder.OpenAsync(FolderAccess.ReadWrite);
@@ -101,8 +109,12 @@ namespace ProtectorLib.Providers
                 }
 
 				await junkFolder.ExpungeAsync();
+				logger.LogInformation("Junk folder expunged");
+
 				int countAfter = junkFolder.Count;
 				await client.DisconnectAsync(true);
+				logger.LogInformation("Client disconnected");
+
 				await messagesHandler.MarkMessagesAsRemovedAsync(messagesRemoved);
 
 				return (countBefore, countAfter);

@@ -1,6 +1,8 @@
 ﻿using MailKit;
 using MailKit.Net.Imap;
 
+using Microsoft.Extensions.Logging;
+
 using ProtectorLib.Configuration;
 using ProtectorLib.Handlers;
 
@@ -16,8 +18,9 @@ namespace ProtectorLib.Providers
             MailboxesConfig mailboxesConfig, 
             ServicesConfig servicesConfig, 
             IMessagesHandler messagesHandler,
-            IDateTimeProvider dateTimeProvider) 
-            : base(servicesConfig, messagesHandler, dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            ILogger<MainMailboxProvider> logger) 
+            : base(servicesConfig, messagesHandler, dateTimeProvider, logger)
         {
             this.mailboxesConfig = mailboxesConfig;
         }
