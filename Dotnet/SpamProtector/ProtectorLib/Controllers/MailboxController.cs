@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using ProtectorLib.Providers;
+
+using System.Collections.Generic;
 using System.Linq;
-using ProtectorLib.Providers;
 
 namespace ProtectorLib.Controllers
 {

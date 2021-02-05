@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
 using ProtectorLib.Providers;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,12 +13,14 @@ namespace ProtectorLib.Handlers
     {
         private readonly IServiceScopeFactory serviceScopeFactory;
         private readonly IDateTimeProvider dateTimeProvider;
+        private readonly ILogger<MessagesHandler> logger;
         private SpamProtectorDBContext dbContext;
 
-        public MessagesHandler(IServiceScopeFactory serviceScopeFactory, IDateTimeProvider dateTimeProvider)
+        public MessagesHandler(IServiceScopeFactory serviceScopeFactory, IDateTimeProvider dateTimeProvider, ILogger<MessagesHandler> logger)
         {
             this.serviceScopeFactory = serviceScopeFactory;
             this.dateTimeProvider = dateTimeProvider;
+            this.logger = logger;
         }
 
         public async Task<int> CatalogMessagesAsync(IEnumerable<Message> messages)
@@ -89,6 +93,55 @@ namespace ProtectorLib.Handlers
                         continue;
 
                     dbMsg.RemoveTime = dateTimeProvider.CurrentTime;
+                }
+
+                await dbContext.SaveChangesAsync();
+            }
+        }
+
+        public async Task<IEnumerable<Message>> GetRemovedMessagesForCheckingAsync()
+        {
+            using (var scope = serviceScopeFactory.CreateScope())
+            {
+                dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
+
+                if (!await dbContext.Messages.AnyAsync(x => x.RemoveTime != null && !x.IsRemoved))
+                {
+                    logger.LogWarning($"{nameof(GetRemovedMessagesForCheckingAsync)}: there are no messages where RemoveTime is not null and IsRemoved = false");
+                    return new List<Message>();
+                }
+
+                return await dbContext.Messages
+                    .Where(x => x.RemoveTime != null && !x.IsRemoved)
+                    .OrderBy(x => x.CatalogTime)
+                    .Take(5)
+                    .ToListAsync();
+            }
+        }
+
+        public async Task SetMessagesAsPermamentlyRemovedAsync(IEnumerable<int> removedMsgsIds)
+        {
+            if (!removedMsgsIds.Any())
+            {
+                logger.LogWarning($"{nameof(SetMessagesAsPermamentlyRemovedAsync)}: provided checked messages list is empty");
+                return;
+            }
+
+            using (var scope = serviceScopeFactory.CreateScope())
+            {
+                dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
+
+                foreach (var checkedMsgId in removedMsgsIds)
+                {
+                    var msg = await dbContext.Messages.FirstOrDefaultAsync(x => x.Id == checkedMsgId);
+
+                    if (msg == null)
+                    {
+                        logger.LogWarning($"{nameof(SetMessagesAsPermamentlyRemovedAsync)}: checked message with id {checkedMsgId} doesn't exist in database");
+                        continue;
+                    }
+
+                    msg.IsRemoved = true;
                 }
 
                 await dbContext.SaveChangesAsync();

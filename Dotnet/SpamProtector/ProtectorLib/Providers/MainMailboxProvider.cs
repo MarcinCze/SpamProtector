@@ -3,6 +3,8 @@ using MailKit.Net.Imap;
 using MailKit.Search;
 using MailKit.Security;
 
+using Microsoft.Extensions.Logging;
+
 using MimeKit;
 
 using ProtectorLib.Configuration;
@@ -23,8 +25,9 @@ namespace ProtectorLib.Providers
             ServicesConfig servicesConfig, 
             IMessagesHandler messagesHandler,
             IRulesProvider rulesProvider,
-			IDateTimeProvider dateTimeProvider) 
-			: base(servicesConfig, messagesHandler, dateTimeProvider)
+			IDateTimeProvider dateTimeProvider,
+            ILogger<MainMailboxProvider> logger) 
+			: base(servicesConfig, messagesHandler, dateTimeProvider, logger)
         {
             this.mailboxesConfig = mailboxesConfig;
             this.rulesProvider = rulesProvider;
@@ -41,6 +44,7 @@ namespace ProtectorLib.Providers
 			{
 				await client.ConnectAsync(MailboxConfig.Url, MailboxConfig.Port, SecureSocketOptions.SslOnConnect);
 				await client.AuthenticateAsync(MailboxConfig.UserName, MailboxConfig.Password);
+                logger.LogInformation("Client connected & authorized");
 				await client.Inbox.OpenAsync(FolderAccess.ReadWrite);
 				var destinationFolder = await client.Inbox.GetSubfolderAsync("Junk");
 
@@ -58,6 +62,7 @@ namespace ProtectorLib.Providers
                 }
 
 				await client.DisconnectAsync(true);
+                logger.LogInformation("Client disconnected");
 			}
 
             return newSpamCounter;

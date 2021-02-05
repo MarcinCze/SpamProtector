@@ -3,9 +3,11 @@ using MailKit.Net.Imap;
 using MailKit.Search;
 using MailKit.Security;
 
+using Microsoft.Extensions.Logging;
+
 using ProtectorLib.Configuration;
 using ProtectorLib.Handlers;
-
+using ProtectorLib.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,12 +20,15 @@ namespace ProtectorLib.Providers
         protected readonly ServicesConfig servicesConfig;
         protected readonly IMessagesHandler messagesHandler;
 		protected readonly IDateTimeProvider dateTimeProvider;
+		protected readonly ILogger logger;
 
         protected BaseMailboxProvider(
             ServicesConfig servicesConfig, 
 			IMessagesHandler messagesHandler, 
-			IDateTimeProvider dateTimeProvider)
+			IDateTimeProvider dateTimeProvider,
+			ILogger logger)
         {
+			this.logger = logger;
             this.servicesConfig = servicesConfig;
             this.messagesHandler = messagesHandler;
 			this.dateTimeProvider = dateTimeProvider;
@@ -43,6 +48,7 @@ namespace ProtectorLib.Providers
 			{
 				await client.ConnectAsync(MailboxConfig.Url, MailboxConfig.Port, SecureSocketOptions.SslOnConnect);
 				await client.AuthenticateAsync(MailboxConfig.UserName, MailboxConfig.Password);
+				logger.LogInformation("Client connected & authorized");
 
 				var junkFolder = await GetJunkFolderAsync(client);
 				await junkFolder.OpenAsync(FolderAccess.ReadOnly);
@@ -65,6 +71,7 @@ namespace ProtectorLib.Providers
 				}
 
 				await client.DisconnectAsync(true);
+				logger.LogInformation("Client disconnected");
 			}
 
 			return await messagesHandler.CatalogMessagesAsync(messages);
@@ -79,13 +86,19 @@ namespace ProtectorLib.Providers
 			{
 				await client.ConnectAsync(MailboxConfig.Url, MailboxConfig.Port, SecureSocketOptions.SslOnConnect);
 				await client.AuthenticateAsync(MailboxConfig.UserName, MailboxConfig.Password);
+				logger.LogInformation("Client connected & authorized");
 
 				var junkFolder = await GetJunkFolderAsync(client);
 				await junkFolder.OpenAsync(FolderAccess.ReadWrite);
 				int countBefore = junkFolder.Count;
 
 				if (!messagesToRemove.Any())
+                {
+					logger.LogWarning("There are no messages to remove");
+					await DeleteConfirmationProcessAsync(client, junkFolder);
+					await client.DisconnectAsync(true);
 					return (countBefore, countBefore);
+				}
 
 				foreach (var message in messagesToRemove)
                 {
@@ -97,12 +110,19 @@ namespace ProtectorLib.Providers
 						messagesRemoved.Add(message.Id);
 					}
                     catch (Exception ex)
-                    { }
+                    {
+						logger.LogError(ex, ex.Message);
+					}
                 }
 
 				await junkFolder.ExpungeAsync();
+				logger.LogInformation("Junk folder expunged");
 				int countAfter = junkFolder.Count;
+
+				await DeleteConfirmationProcessAsync(client, junkFolder);
 				await client.DisconnectAsync(true);
+				logger.LogInformation("Client disconnected");
+
 				await messagesHandler.MarkMessagesAsRemovedAsync(messagesRemoved);
 
 				return (countBefore, countAfter);
@@ -112,5 +132,31 @@ namespace ProtectorLib.Providers
 		public virtual Task<int> DetectSpamAsync() => throw new NotImplementedException();
 
         protected virtual Task<IMailFolder> GetJunkFolderAsync(ImapClient imapClient) => throw new NotImplementedException();
-    }
+
+		protected virtual async Task DeleteConfirmationProcessAsync(ImapClient imapClient, IMailFolder junkFolder)
+        {
+			var messagesForChecking = await messagesHandler.GetRemovedMessagesForCheckingAsync();
+			List<Message> messagesRemovedPermamently = messagesForChecking.ToList();
+
+			if (!messagesForChecking.Any())
+				return;
+
+			var uids = await junkFolder.SearchAsync(SearchQuery.Uids(messagesForChecking.GetUniqueIds()));
+
+			if (!uids.Any())
+            {
+				logger.LogWarning($"{nameof(DeleteConfirmationProcessAsync)}: all messages doesn't exists which is OK");
+				await messagesHandler.SetMessagesAsPermamentlyRemovedAsync(messagesForChecking.GetIds());
+				return;
+            }
+
+            foreach (var message in uids)
+            {
+				logger.LogError($"Message with ID {message.Id} should be removed but exists");
+				messagesRemovedPermamently.RemoveAll(x => x.ImapUid == message.Id);
+            }
+
+			await messagesHandler.SetMessagesAsPermamentlyRemovedAsync(messagesRemovedPermamently.GetIds());
+		}
+	}
 }
