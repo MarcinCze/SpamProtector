@@ -93,7 +93,12 @@ namespace ProtectorLib.Providers
 				int countBefore = junkFolder.Count;
 
 				if (!messagesToRemove.Any())
+                {
+					logger.LogWarning("There are no messages to remove");
+					await DeleteConfirmationProcessAsync(client, junkFolder);
+					await client.DisconnectAsync(true);
 					return (countBefore, countBefore);
+				}
 
 				foreach (var message in messagesToRemove)
                 {
@@ -105,7 +110,9 @@ namespace ProtectorLib.Providers
 						messagesRemoved.Add(message.Id);
 					}
                     catch (Exception ex)
-                    { }
+                    {
+						logger.LogError(ex, ex.Message);
+					}
                 }
 
 				await junkFolder.ExpungeAsync();
@@ -113,7 +120,6 @@ namespace ProtectorLib.Providers
 				int countAfter = junkFolder.Count;
 
 				await DeleteConfirmationProcessAsync(client, junkFolder);
-
 				await client.DisconnectAsync(true);
 				logger.LogInformation("Client disconnected");
 

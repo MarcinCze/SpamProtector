@@ -56,9 +56,6 @@ namespace ProtectorLib.Services
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                logger.LogInformation("Checking if service should run...");
-
                 if (await ShouldItRunAsync())
                 {
                     logger.LogInformation("Service should run. Starting operation");
@@ -95,7 +92,6 @@ namespace ProtectorLib.Services
                 }
 
                 FinishActions();
-                logger.LogInformation("Executed FinishActions");
 
                 await Task.Delay(new TimeSpan(0, 0, 30), stoppingToken);
             }
