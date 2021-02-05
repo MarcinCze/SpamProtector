@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using ProtectorLib.Providers;
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,14 +18,19 @@ namespace ProtectorLib.Handlers
             DONE
         }
 
+        private readonly ILogger<ServiceRunHistoryHandler> logger;
         private readonly IServiceScopeFactory serviceScopeFactory;
         private readonly IDateTimeProvider dateTimeProvider;
         private int entryId;
 
-        public ServiceRunHistoryHandler(IServiceScopeFactory serviceScopeFactory, IDateTimeProvider dateTimeProvider)
+        public ServiceRunHistoryHandler(
+            IServiceScopeFactory serviceScopeFactory, 
+            IDateTimeProvider dateTimeProvider, 
+            ILogger<ServiceRunHistoryHandler> logger)
         {
             this.serviceScopeFactory = serviceScopeFactory;
             this.dateTimeProvider = dateTimeProvider;
+            this.logger = logger;
         }
 
         public async Task RegisterStartAsync(string serviceName, string serviceVersion) =>
@@ -31,22 +38,29 @@ namespace ProtectorLib.Handlers
 
         public async Task RegisterStartAsync(string serviceName, string serviceVersion, string branchName)
         {
-            using (var scope = serviceScopeFactory.CreateScope())
+            try
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
-
-                var entry = new ServiceRunHistory
+                using (var scope = serviceScopeFactory.CreateScope())
                 {
-                    ServiceName = serviceName,
-                    ServiceVersion = GetVersionEntry(serviceVersion),
-                    Branch = branchName,
-                    Status = ServiceStatus.PROCESSING.ToString(),
-                    StartTime = dateTimeProvider.CurrentTime
-                };
-                
-                await dbContext.ServiceRunHistories.AddAsync(entry);
-                await dbContext.SaveChangesAsync();
-                entryId = entry.Id;
+                    var dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
+
+                    var entry = new ServiceRunHistory
+                    {
+                        ServiceName = serviceName,
+                        ServiceVersion = GetVersionEntry(serviceVersion),
+                        Branch = branchName,
+                        Status = ServiceStatus.PROCESSING.ToString(),
+                        StartTime = dateTimeProvider.CurrentTime
+                    };
+
+                    await dbContext.ServiceRunHistories.AddAsync(entry);
+                    await dbContext.SaveChangesAsync();
+                    entryId = entry.Id;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
             }
         }
 
@@ -55,23 +69,30 @@ namespace ProtectorLib.Handlers
 
         public async Task RegisterFinishAsync(string serviceName, string branchName, string additionalData, ServiceStatus endStatus, string executionTime)
         {
-            using (var scope = serviceScopeFactory.CreateScope())
+            try
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
+                using (var scope = serviceScopeFactory.CreateScope())
+                {
+                    var dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
 
-                var entry = dbContext.ServiceRunHistories
-                    .OrderByDescending(x => x.StartTime)
-                    .FirstOrDefault(x => x.Id == entryId && x.ServiceName.Equals(serviceName) && x.Branch.Equals(branchName));
+                    var entry = dbContext.ServiceRunHistories
+                        .OrderByDescending(x => x.StartTime)
+                        .FirstOrDefault(x => x.Id == entryId && x.ServiceName.Equals(serviceName) && x.Branch.Equals(branchName));
 
-                if (entry == null)
-                    return;
+                    if (entry == null)
+                        return;
 
-                entry.Status = endStatus.ToString();
-                entry.EndTime = dateTimeProvider.CurrentTime;
-                entry.Information = additionalData;
-                entry.ExecutionTime = executionTime;
+                    entry.Status = endStatus.ToString();
+                    entry.EndTime = dateTimeProvider.CurrentTime;
+                    entry.Information = additionalData.Length < 999 ? additionalData : additionalData.Substring(0, 999);
+                    entry.ExecutionTime = executionTime;
 
-                await dbContext.SaveChangesAsync();
+                    await dbContext.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
             }
         }
 
