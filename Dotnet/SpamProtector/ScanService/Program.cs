@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using ProtectorLib;
 using ProtectorLib.Configuration;
 using ProtectorLib.Extensions;
+using ProtectorLib.Handlers;
+using ProtectorLib.Providers;
 
 using System.IO;
 
@@ -42,7 +44,9 @@ namespace ScanService
                         .AddMailboxController()
                         .AddMailboxProviders()
                         .AddMailboxRequiredClasses()
-                        .AddServiceRunHandlers()
+                        //.AddServiceRunHandlers()
+                        .AddSingleton<IServiceRunHistoryHandler, ServiceRunHistoryMsgSender>()
+                        .AddSingleton<IServiceRunScheduleProvider, ServiceRunScheduleProvider>()
                         .AddHostedService<Worker>();
                 });
     }
