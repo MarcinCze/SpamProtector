@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+
+using ProtectorLib.Enums;
 using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 using System;
@@ -40,7 +42,7 @@ namespace ProtectorLib.Services
         protected virtual async Task SaveStartAsync()
             => await serviceRunHistoryHandler.RegisterStartAsync(ServiceName, ServiceVersion);
 
-        protected virtual async Task SaveFinishAsync(ServiceRunHistoryHandler.ServiceStatus status, string executionTime)
+        protected virtual async Task SaveFinishAsync(ServiceStatus status, string executionTime)
             => await serviceRunHistoryHandler.RegisterFinishAsync(ServiceName, ServiceResultAdditionalInfo, status, executionTime);
 
         protected virtual async Task SaveLastRunAsync()
@@ -61,7 +63,7 @@ namespace ProtectorLib.Services
                     logger.LogInformation("Service should run. Starting operation");
                     stopWatch.Start();
 
-                    var status = ServiceRunHistoryHandler.ServiceStatus.PROCESSING;
+                    var status = ServiceStatus.PROCESSING;
                     await SaveStartAsync();
                     logger.LogInformation("Service start saved");
 
@@ -69,12 +71,12 @@ namespace ProtectorLib.Services
                     {
                         ServiceResultAdditionalInfo = null;
                         await ExecuteBodyAsync();
-                        status = ServiceRunHistoryHandler.ServiceStatus.DONE;
+                        status = ServiceStatus.DONE;
                         logger.LogInformation("Service function body executed successfully");
                     }
                     catch (Exception ex)
                     {
-                        status = ServiceRunHistoryHandler.ServiceStatus.ERROR;
+                        status = ServiceStatus.ERROR;
                         ServiceResultAdditionalInfo = JsonSerializer.Serialize(new { ex.Message, ex.StackTrace });
                         logger.LogError(ex, $"{ServiceName} throwed an error of type {ex.GetType()}");
                     }

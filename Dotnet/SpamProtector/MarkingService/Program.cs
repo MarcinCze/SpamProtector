@@ -41,6 +41,7 @@ namespace MarkingService
                         .AddSingleton<IMessagesHandler, MessagesHandler>()
                         .AddSingleton<IDateTimeProvider, DateTimeProvider>()
                         .AddServiceRunHandlers()
+                        .AddMessagingMechanism()
                         .AddHostedService<Worker>();
                 });
     }

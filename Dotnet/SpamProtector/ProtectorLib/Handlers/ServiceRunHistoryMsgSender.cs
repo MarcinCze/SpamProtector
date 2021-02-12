@@ -1,20 +1,42 @@
-﻿using System;
-using System.Text;
+﻿using ProtectorLib.Enums;
+using ProtectorLib.Messaging;
+using ProtectorLib.Providers;
+
 using System.Threading.Tasks;
-using RabbitMQ.Client;
+
 
 namespace ProtectorLib.Handlers
 {
     public class ServiceRunHistoryMsgSender : IServiceRunHistoryHandler
     {
-        public Task RegisterFinishAsync(string serviceName, string additionalData, ServiceRunHistoryHandler.ServiceStatus endStatus, string executionTime)
+        private readonly IMessagingService messagingService;
+        private readonly IDateTimeProvider dateTimeProvider;
+
+        public ServiceRunHistoryMsgSender(IMessagingService messagingService, IDateTimeProvider dateTimeProvider)
         {
-            throw new NotImplementedException();
+            this.messagingService = messagingService;
+            this.dateTimeProvider = dateTimeProvider;
         }
 
-        public Task RegisterFinishAsync(string serviceName, string branchName, string additionalData, ServiceRunHistoryHandler.ServiceStatus endStatus, string executionTime)
+        public async Task RegisterFinishAsync(string serviceName, string additionalData, ServiceStatus endStatus, string executionTime)
         {
-            throw new NotImplementedException();
+            await RegisterFinishAsync(serviceName, null, additionalData, endStatus, executionTime);
+        }
+
+        public async Task RegisterFinishAsync(string serviceName, string branchName, string additionalData, ServiceStatus endStatus, string executionTime)
+        {
+            await Task.Run(() =>
+            {
+                messagingService.SendMessage(new Models.ServiceRun()
+                {
+                    ServiceName = serviceName,
+                    Branch = branchName,
+                    Status = endStatus.ToString(),
+                    EndTime = dateTimeProvider.CurrentTime,
+                    Information = additionalData.Length < 999 ? additionalData : additionalData.Substring(0, 999),
+                    ExecutionTime = executionTime
+                });
+            });
         }
 
         public async Task RegisterStartAsync(string serviceName, string serviceVersion)
@@ -22,37 +44,19 @@ namespace ProtectorLib.Handlers
             await RegisterStartAsync(serviceName, serviceVersion, null);
         }
 
-        public Task RegisterStartAsync(string serviceName, string serviceVersion, string branchName)
+        public async Task RegisterStartAsync(string serviceName, string serviceVersion, string branchName)
         {
-            try
+            await Task.Run(() =>
             {
-                var factory = new ConnectionFactory() { HostName = "SRV-RATEL" };
-                factory.UserName = "ratel";
-                factory.Password = "janosik";
-                using (var connection = factory.CreateConnection())
-                using (var channel = connection.CreateModel())
+                messagingService.SendMessage(new Models.ServiceRun()
                 {
-                    channel.QueueDeclare(queue: "hello",
-                                         durable: false,
-                                         exclusive: false,
-                                         autoDelete: false,
-                                         arguments: null);
-
-                    string message = "Hello World!";
-                    var body = Encoding.UTF8.GetBytes(message);
-
-                    channel.BasicPublish(exchange: "",
-                                         routingKey: "hello",
-                                         basicProperties: null,
-                                         body: body);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-            return Task.CompletedTask;
+                    ServiceName = serviceName,
+                    Branch = branchName,
+                    ServiceVersion = serviceVersion,
+                    Status = ServiceStatus.PROCESSING.ToString(),
+                    StartTime = dateTimeProvider.CurrentTime
+                });
+            });    
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using ProtectorLib.Enums;
 using ProtectorLib.Providers;
 
 using System;
@@ -11,13 +12,6 @@ namespace ProtectorLib.Handlers
 {
     public class ServiceRunHistoryHandler : IServiceRunHistoryHandler
     {
-        public enum ServiceStatus
-        {
-            PROCESSING,
-            ERROR,
-            DONE
-        }
-
         private readonly ILogger<ServiceRunHistoryHandler> logger;
         private readonly IServiceScopeFactory serviceScopeFactory;
         private readonly IDateTimeProvider dateTimeProvider;

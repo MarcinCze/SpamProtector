@@ -43,6 +43,7 @@ namespace DeleteService
                         .AddMailboxProviders()
                         .AddMailboxRequiredClasses()
                         .AddServiceRunHandlers()
+                        .AddMessagingMechanism()
                         .AddHostedService<Worker>();
                 });
     }

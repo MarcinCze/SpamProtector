@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 
 using ProtectorLib.Controllers;
+using ProtectorLib.Enums;
 using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 using ProtectorLib.Services;
@@ -40,7 +41,7 @@ namespace ScanService
         protected override async Task SaveStartAsync()
             => await serviceRunHistoryHandler.RegisterStartAsync(ServiceName, ServiceVersion, controller.CurrentMailboxProvider.MailBoxName);
 
-        protected override async Task SaveFinishAsync(ServiceRunHistoryHandler.ServiceStatus status, string executionTime)
+        protected override async Task SaveFinishAsync(ServiceStatus status, string executionTime)
             => await serviceRunHistoryHandler.RegisterFinishAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName, ServiceResultAdditionalInfo, status, executionTime);
 
         protected override async Task SaveLastRunAsync()

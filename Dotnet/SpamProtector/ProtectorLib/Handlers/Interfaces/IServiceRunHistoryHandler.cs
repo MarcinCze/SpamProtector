@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using ProtectorLib.Enums;
+
+using System.Threading.Tasks;
 
 namespace ProtectorLib.Handlers
 {
@@ -6,7 +8,7 @@ namespace ProtectorLib.Handlers
     {
         Task RegisterStartAsync(string serviceName, string serviceVersion);
         Task RegisterStartAsync(string serviceName, string serviceVersion, string branchName);
-        Task RegisterFinishAsync(string serviceName, string additionalData, ServiceRunHistoryHandler.ServiceStatus endStatus, string executionTime);
-        Task RegisterFinishAsync(string serviceName, string branchName, string additionalData, ServiceRunHistoryHandler.ServiceStatus endStatus, string executionTime);
+        Task RegisterFinishAsync(string serviceName, string additionalData, ServiceStatus endStatus, string executionTime);
+        Task RegisterFinishAsync(string serviceName, string branchName, string additionalData, ServiceStatus endStatus, string executionTime);
     }
 }
