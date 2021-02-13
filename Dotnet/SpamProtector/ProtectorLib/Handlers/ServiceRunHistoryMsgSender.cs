@@ -1,4 +1,4 @@
-﻿using ProtectorLib.Enums;
+﻿using ProtectorLib.Models.Enums;
 using ProtectorLib.Messaging;
 using ProtectorLib.Providers;
 
@@ -27,13 +27,18 @@ namespace ProtectorLib.Handlers
         {
             await Task.Run(() =>
             {
+                if (!string.IsNullOrEmpty(additionalData))
+                {
+                    additionalData = additionalData.Length < 999 ? additionalData : additionalData.Substring(0, 999);
+                }
+
                 messagingService.SendMessage(new Models.ServiceRun()
                 {
                     ServiceName = serviceName,
                     Branch = branchName,
                     Status = endStatus.ToString(),
                     EndTime = dateTimeProvider.CurrentTime,
-                    Information = additionalData.Length < 999 ? additionalData : additionalData.Substring(0, 999),
+                    Information = additionalData,
                     ExecutionTime = executionTime
                 });
             });
@@ -52,11 +57,13 @@ namespace ProtectorLib.Handlers
                 {
                     ServiceName = serviceName,
                     Branch = branchName,
-                    ServiceVersion = serviceVersion,
+                    ServiceVersion = GetVersionEntry(serviceVersion),
                     Status = ServiceStatus.PROCESSING.ToString(),
                     StartTime = dateTimeProvider.CurrentTime
                 });
             });    
         }
+
+        private string GetVersionEntry(string serviceVersion) => $"ver {serviceVersion} / lib {GetType().Assembly.GetName().Version}";
     }
 }

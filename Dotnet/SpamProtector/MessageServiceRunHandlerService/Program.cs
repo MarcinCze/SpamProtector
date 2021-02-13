@@ -38,7 +38,7 @@ namespace MessageServiceRunHandlerService
                     services
                         .AddSingleton(hostContext.Configuration.GetSection("Messaging").Get<MessagingConfig>())
                         .AddDbContext<SpamProtectorDBContext>(options => options.UseSqlServer(hostContext.Configuration.GetConnectionString("SpamProtectorDBContext")))
-                        .AddSingleton<IDateTimeProvider, DateTimeProvider>()
+                        .AddSingleton<IServiceRunHandler, ServiceRunHandler>()
                         .AddHostedService<Worker>();
                 });
     }

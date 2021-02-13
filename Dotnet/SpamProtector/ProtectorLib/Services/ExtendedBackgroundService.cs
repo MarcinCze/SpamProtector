@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using ProtectorLib.Enums;
+using ProtectorLib.Models.Enums;
 using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 using System;

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using ProtectorLib;
+using ProtectorLib.Configuration;
 using ProtectorLib.Extensions;
 using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
@@ -37,6 +38,7 @@ namespace MarkingService
                 .ConfigureServices((hostContext, services) =>
                 {
                     services
+                        .AddSingleton(hostContext.Configuration.GetSection("Messaging").Get<MessagingConfig>())
                         .AddDbContext<SpamProtectorDBContext>(options => options.UseSqlServer(hostContext.Configuration.GetConnectionString("SpamProtectorDBContext")))
                         .AddSingleton<IMessagesHandler, MessagesHandler>()
                         .AddSingleton<IDateTimeProvider, DateTimeProvider>()

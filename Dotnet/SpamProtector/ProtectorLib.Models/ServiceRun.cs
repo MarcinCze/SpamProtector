@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ProtectorLib.Models.Enums;
+
+using System;
 
 namespace ProtectorLib.Models
 {
@@ -12,5 +14,7 @@ namespace ProtectorLib.Models
         public string ExecutionTime { get; set; }
         public string Status { get; set; }
         public string Information { get; set; }
+
+        public ServiceStatus ServiceStatus => (ServiceStatus)Enum.Parse(typeof(ServiceStatus), Status, true);
     }
 }

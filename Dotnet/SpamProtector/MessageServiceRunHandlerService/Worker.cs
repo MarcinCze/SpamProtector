@@ -1,38 +1,34 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using ProtectorLib.Configuration;
+using ProtectorLib.Models;
 
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+
+using System;
 using System.Text;
 using System.Text.Json;
-using ProtectorLib.Models;
-using ProtectorLib.Configuration;
-using ProtectorLib;
-using Microsoft.Extensions.DependencyInjection;
-using ProtectorLib.Providers;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MessageServiceRunHandlerService
 {
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> logger;
-        private readonly IServiceScopeFactory serviceScopeFactory;
-        private readonly IDateTimeProvider dateTimeProvider;
+        private readonly IServiceRunHandler serviceRunHandler;
 
         private MessagingConfig msgConfig;
         private IConnection connection;
         private IModel channel;
 
-        public Worker(ILogger<Worker> logger, MessagingConfig msgConfig, IServiceScopeFactory serviceScopeFactory, IDateTimeProvider dateTimeProvider)
+        public Worker(ILogger<Worker> logger, MessagingConfig msgConfig, IServiceRunHandler serviceRunHandler)
         {
             this.logger = logger;
             this.msgConfig = msgConfig;
-            this.dateTimeProvider = dateTimeProvider;
-            this.serviceScopeFactory = serviceScopeFactory;
+            this.serviceRunHandler = serviceRunHandler;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -88,38 +84,16 @@ namespace MessageServiceRunHandlerService
         {
             try
             {
-                var msgObj = JsonSerializer.Deserialize<ProtectorLib.Models.Message>(message);
+                var msgObj = JsonSerializer.Deserialize<Message>(message);
                 var content = JsonSerializer.Deserialize<ServiceRun>(msgObj.Content);
-                logger.LogInformation($"ServiceName from MSG: {content.ServiceName} STATUS: {content.Status}");
-
-                using (var scope = serviceScopeFactory.CreateScope())
-                {
-                    var dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
-                    // TODO FIX
-                    if (content.Status != "PROCESSING")
-                    {
-                        var entry = new ServiceRunHistory
-                        {
-                            ServiceName = content.ServiceName,
-                            ServiceVersion = content.ServiceVersion,
-                            Branch = content.Branch,
-                            Status = content.Status,
-                            StartTime = DateTime.Now,
-                            EndTime = content.EndTime,
-                            ExecutionTime = content.ExecutionTime,
-                            Information = content.Information
-                        };
-
-                        await dbContext.ServiceRunHistories.AddAsync(entry);
-                    }
-                    
-                    await dbContext.SaveChangesAsync();
-                }
+                logger.LogInformation($"Handling incoming message. Service: {content.ServiceName} Branch: {content.Branch} Status: {content.Status}");
+                await serviceRunHandler.SaveAsync(content);
 
                 return true;
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, ex.Message);
                 return false;
             }
         }

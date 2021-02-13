@@ -1,4 +1,4 @@
-﻿using ProtectorLib.Enums;
+﻿using ProtectorLib.Models.Enums;
 
 using System.Threading.Tasks;
 

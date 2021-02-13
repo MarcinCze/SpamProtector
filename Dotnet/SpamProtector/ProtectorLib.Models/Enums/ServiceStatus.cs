@@ -1,4 +1,4 @@
-﻿namespace ProtectorLib.Enums
+﻿namespace ProtectorLib.Models.Enums
 {
     public enum ServiceStatus
     {

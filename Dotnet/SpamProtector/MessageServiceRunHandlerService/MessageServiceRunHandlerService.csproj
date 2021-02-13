@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-MessageServiceRunHandlerService-58785F51-379E-48EC-8D77-BAEB3631ADF6</UserSecretsId>
+    <FileVersion>1.1.0.0</FileVersion>
+    <Version>1.1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
