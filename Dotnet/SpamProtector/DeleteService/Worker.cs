@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 using ProtectorLib.Services;
+using ProtectorLib.Models.Enums;
 using System.Threading.Tasks;
 using ProtectorLib.Controllers;
 using System;
@@ -37,7 +38,7 @@ namespace DeleteService
         protected override async Task SaveStartAsync()
             => await serviceRunHistoryHandler.RegisterStartAsync(ServiceName, ServiceVersion, controller.CurrentMailboxProvider.MailBoxName);
 
-        protected override async Task SaveFinishAsync(ServiceRunHistoryHandler.ServiceStatus status, string executionTime)
+        protected override async Task SaveFinishAsync(ServiceStatus status, string executionTime)
             => await serviceRunHistoryHandler.RegisterFinishAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName, ServiceResultAdditionalInfo, status, executionTime);
 
         protected override async Task SaveLastRunAsync()

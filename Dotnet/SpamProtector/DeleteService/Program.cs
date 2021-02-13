@@ -38,11 +38,13 @@ namespace DeleteService
                     services
                         .AddSingleton(hostContext.Configuration.GetSection("Mailboxes").Get<MailboxesConfig>())
                         .AddSingleton(hostContext.Configuration.GetSection("Services").Get<ServicesConfig>())
+                        .AddSingleton(hostContext.Configuration.GetSection("Messaging").Get<MessagingConfig>())
                         .AddDbContext<SpamProtectorDBContext>(options => options.UseSqlServer(hostContext.Configuration.GetConnectionString("SpamProtectorDBContext")))
                         .AddMailboxController()
                         .AddMailboxProviders()
                         .AddMailboxRequiredClasses()
                         .AddServiceRunHandlers()
+                        .AddMessagingMechanism()
                         .AddHostedService<Worker>();
                 });
     }

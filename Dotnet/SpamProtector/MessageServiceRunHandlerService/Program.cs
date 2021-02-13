@@ -6,13 +6,11 @@ using Microsoft.Extensions.Logging;
 
 using ProtectorLib;
 using ProtectorLib.Configuration;
-using ProtectorLib.Extensions;
-using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 
 using System.IO;
 
-namespace MarkingService
+namespace MessageServiceRunHandlerService
 {
     public class Program
     {
@@ -40,10 +38,7 @@ namespace MarkingService
                     services
                         .AddSingleton(hostContext.Configuration.GetSection("Messaging").Get<MessagingConfig>())
                         .AddDbContext<SpamProtectorDBContext>(options => options.UseSqlServer(hostContext.Configuration.GetConnectionString("SpamProtectorDBContext")))
-                        .AddSingleton<IMessagesHandler, MessagesHandler>()
-                        .AddSingleton<IDateTimeProvider, DateTimeProvider>()
-                        .AddServiceRunHandlers()
-                        .AddMessagingMechanism()
+                        .AddSingleton<IServiceRunHandler, ServiceRunHandler>()
                         .AddHostedService<Worker>();
                 });
     }

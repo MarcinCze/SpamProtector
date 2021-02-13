@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using ProtectorLib.Controllers;
 using ProtectorLib.Handlers;
+using ProtectorLib.Messaging;
 using ProtectorLib.Providers;
 
 namespace ProtectorLib.Extensions
@@ -30,7 +31,8 @@ namespace ProtectorLib.Extensions
         public static IServiceCollection AddServiceRunHandlers(this IServiceCollection services)
         {
             services
-                .AddSingleton<IServiceRunHistoryHandler, ServiceRunHistoryHandler>()
+                //.AddSingleton<IServiceRunHistoryHandler, ServiceRunHistoryHandler>()
+                .AddSingleton<IServiceRunHistoryHandler, ServiceRunHistoryMsgSender>()
                 .AddSingleton<IServiceRunScheduleProvider, ServiceRunScheduleProvider>();
             return services;
         }
@@ -38,6 +40,12 @@ namespace ProtectorLib.Extensions
         public static IServiceCollection AddMailboxController(this IServiceCollection services)
         {
             services.AddSingleton<IMailboxController, MailboxController>();
+            return services;
+        }
+
+        public static IServiceCollection AddMessagingMechanism(this IServiceCollection services)
+        {
+            services.AddSingleton<IMessagingService, MessagingService>();
             return services;
         }
     }
