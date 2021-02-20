@@ -34,7 +34,7 @@ namespace MessageServiceRunHandlerService
                         Branch = message.Branch,
                         StartTime = message.StartTime,
                         Status = message.Status,
-                        ServiceVersion = message.ServiceVersion
+                        ServiceVersion = ExtendVersionEntry(message.ServiceVersion)
                     });
                 }
                 else
@@ -57,5 +57,7 @@ namespace MessageServiceRunHandlerService
                 await dbContext.SaveChangesAsync();
             }
         }
+
+        private string ExtendVersionEntry(string serviceVersion) => $"{serviceVersion} / msgHandler {GetType().Assembly.GetName().Version}";
     }
 }
