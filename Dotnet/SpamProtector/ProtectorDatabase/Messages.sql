@@ -11,5 +11,6 @@
     [CatalogTime] DATETIME2 NULL, 
     [PlannedRemoveTime] DATETIME2 NULL, 
     [RemoveTime] DATETIME2 NULL, 
-    [IsRemoved] BIT NOT NULL DEFAULT 0
+    [IsRemoved] BIT NOT NULL DEFAULT 0,
+    [VersionUpdateTime] DATETIME2 NULL
 )

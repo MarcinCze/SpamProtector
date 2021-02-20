@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 
-#nullable disable
-
-namespace ProtectorLib
+namespace ProtectorLib.Models
 {
-    public partial class Message
+    public class EmailDTO
     {
         public int Id { get; set; }
         public int ImapUid { get; set; }
@@ -19,6 +16,6 @@ namespace ProtectorLib
         public DateTime? PlannedRemoveTime { get; set; }
         public DateTime? RemoveTime { get; set; }
         public bool IsRemoved { get; set; }
-        public DateTime? VersionUpdateTime { get; set; }
+        public DateTime VersionUpdateTime { get; set; }
     }
 }

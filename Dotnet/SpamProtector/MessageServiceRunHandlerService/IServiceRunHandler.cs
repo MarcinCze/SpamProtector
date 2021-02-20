@@ -6,6 +6,6 @@ namespace MessageServiceRunHandlerService
 {
     public interface IServiceRunHandler
     {
-        Task SaveAsync(ServiceRun message);
+        Task SaveAsync(ServiceRunDTO message);
     }
 }

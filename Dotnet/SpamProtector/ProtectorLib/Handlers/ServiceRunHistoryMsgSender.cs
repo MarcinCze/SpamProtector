@@ -32,7 +32,7 @@ namespace ProtectorLib.Handlers
                     additionalData = additionalData.Length < 999 ? additionalData : additionalData.Substring(0, 999);
                 }
 
-                messagingService.SendMessage(new Models.ServiceRun()
+                messagingService.SendMessage(new Models.ServiceRunDTO()
                 {
                     ServiceName = serviceName,
                     Branch = branchName,
@@ -53,7 +53,7 @@ namespace ProtectorLib.Handlers
         {
             await Task.Run(() =>
             {
-                messagingService.SendMessage(new Models.ServiceRun()
+                messagingService.SendMessage(new Models.ServiceRunDTO()
                 {
                     ServiceName = serviceName,
                     Branch = branchName,

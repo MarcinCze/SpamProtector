@@ -2,6 +2,7 @@
 
 using ProtectorLib.Configuration;
 using ProtectorLib.Handlers;
+using ProtectorLib.Messaging;
 
 namespace ProtectorLib.Providers
 {
@@ -14,8 +15,9 @@ namespace ProtectorLib.Providers
             ServicesConfig servicesConfig,
             IMessagesHandler messagesHandler,
             IDateTimeProvider dateTimeProvider,
+            IMessagingService messagingService,
             ILogger<MainMailboxProvider> logger)
-            : base(servicesConfig, messagesHandler, dateTimeProvider, logger)
+            : base(servicesConfig, messagesHandler, dateTimeProvider, messagingService, logger)
         {
             this.mailboxesConfig = mailboxesConfig;
         }

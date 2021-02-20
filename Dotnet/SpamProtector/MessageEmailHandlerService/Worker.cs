@@ -13,22 +13,23 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MessageServiceRunHandlerService
+namespace MessageEmailHandlerService
 {
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> logger;
-        private readonly IServiceRunHandler serviceRunHandler;
+        private readonly IEmailMessageHandler messageHandler;
 
         private MessagingConfig msgConfig;
         private IConnection connection;
         private IModel channel;
+        
 
-        public Worker(ILogger<Worker> logger, MessagingConfig msgConfig, IServiceRunHandler serviceRunHandler)
+        public Worker(ILogger<Worker> logger, MessagingConfig msgConfig, IEmailMessageHandler messageHandler)
         {
             this.logger = logger;
             this.msgConfig = msgConfig;
-            this.serviceRunHandler = serviceRunHandler;
+            this.messageHandler = messageHandler;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -55,11 +56,11 @@ namespace MessageServiceRunHandlerService
 
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
-            
+
             var consumer = new EventingBasicConsumer(channel);
             consumer.Received += Consumer_Received;
-            channel.BasicConsume(queue: "queue_service_run", autoAck: false, consumer: consumer);
-            
+            channel.BasicConsume(queue: "queue_email", autoAck: false, consumer: consumer);
+
         }
 
         protected void CloseConnection()
@@ -85,9 +86,9 @@ namespace MessageServiceRunHandlerService
             try
             {
                 var msgObj = JsonSerializer.Deserialize<QueueMessage>(message);
-                var content = JsonSerializer.Deserialize<ServiceRunDTO>(msgObj.Content);
-                logger.LogInformation($"Handling incoming message. Service: {content.ServiceName} Branch: {content.Branch} Status: {content.Status}");
-                await serviceRunHandler.SaveAsync(content);
+                var content = JsonSerializer.Deserialize<EmailDTO>(msgObj.Content);
+                logger.LogInformation($"Handling incoming message. Mailbox {content.Mailbox} Sender {content.Sender}");
+                await messageHandler.HandleAsync(content);
 
                 return true;
             }
