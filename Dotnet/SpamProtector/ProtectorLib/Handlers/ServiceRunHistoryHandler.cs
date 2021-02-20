@@ -90,7 +90,6 @@ namespace ProtectorLib.Handlers
             }
         }
 
-        //private string ExtendedVersionEntry(string serviceVersion) => $"{serviceVersion} / msgHandler {GetType().Assembly.GetName().Version}";
-        private string ExtendedVersionEntry(string serviceVersion) => $"{serviceVersion}";
+        private string ExtendedVersionEntry(string serviceVersion) => $"{serviceVersion} / msgHandler {GetType().Assembly.GetName().Version}";
     }
 }
