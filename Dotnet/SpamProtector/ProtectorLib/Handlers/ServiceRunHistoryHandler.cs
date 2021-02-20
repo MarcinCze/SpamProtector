@@ -41,7 +41,7 @@ namespace ProtectorLib.Handlers
                     var entry = new ServiceRunHistory
                     {
                         ServiceName = serviceName,
-                        ServiceVersion = GetVersionEntry(serviceVersion),
+                        ServiceVersion = ExtendedVersionEntry(serviceVersion),
                         Branch = branchName,
                         Status = ServiceStatus.PROCESSING.ToString(),
                         StartTime = dateTimeProvider.CurrentTime
@@ -90,6 +90,7 @@ namespace ProtectorLib.Handlers
             }
         }
 
-        private string GetVersionEntry(string serviceVersion) => $"ver {serviceVersion} / lib {GetType().Assembly.GetName().Version}";
+        //private string ExtendedVersionEntry(string serviceVersion) => $"{serviceVersion} / msgHandler {GetType().Assembly.GetName().Version}";
+        private string ExtendedVersionEntry(string serviceVersion) => $"{serviceVersion}";
     }
 }
