@@ -4,7 +4,7 @@ using System;
 
 namespace ProtectorLib.Models
 {
-    public class ServiceRun
+    public class ServiceRunDTO
     {
         public string ServiceName { get; set; }
         public string Branch { get; set; }

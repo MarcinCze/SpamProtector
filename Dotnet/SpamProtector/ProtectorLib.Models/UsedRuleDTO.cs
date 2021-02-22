@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ProtectorLib.Models
 {
-    public class UsedRule
+    public class UsedRuleDTO
     {
     }
 }

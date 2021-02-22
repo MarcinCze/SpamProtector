@@ -20,7 +20,7 @@ namespace MessageServiceRunHandlerService
             this.serviceScopeFactory = serviceScopeFactory;
         }
 
-        public async Task SaveAsync(ServiceRun message)
+        public async Task SaveAsync(ServiceRunDTO message)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {

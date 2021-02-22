@@ -28,8 +28,7 @@ namespace CatalogService
 
         protected override async Task ExecuteBodyAsync()
         {
-            int msgInserted = await controller.CurrentMailboxProvider.CatalogAsync();
-            ServiceResultAdditionalInfo = $"New messages in catalog: {msgInserted}";
+            await controller.CurrentMailboxProvider.CatalogAsync();
         }
 
         protected override Task<bool> ShouldItRunAsync() =>

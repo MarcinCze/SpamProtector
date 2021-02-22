@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using ProtectorLib.Configuration;
 using ProtectorLib.Handlers;
 using ProtectorLib.Extensions;
+using ProtectorLib.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,14 +22,17 @@ namespace ProtectorLib.Providers
         protected readonly IMessagesHandler messagesHandler;
 		protected readonly IDateTimeProvider dateTimeProvider;
 		protected readonly ILogger logger;
+		protected readonly IMessagingService messagingService;
 
         protected BaseMailboxProvider(
             ServicesConfig servicesConfig, 
 			IMessagesHandler messagesHandler, 
 			IDateTimeProvider dateTimeProvider,
+			IMessagingService messagingService,
 			ILogger logger)
         {
 			this.logger = logger;
+			this.messagingService = messagingService;
             this.servicesConfig = servicesConfig;
             this.messagesHandler = messagesHandler;
 			this.dateTimeProvider = dateTimeProvider;
@@ -40,10 +44,8 @@ namespace ProtectorLib.Providers
 		protected virtual DateTime DeliveredAfterDate => dateTimeProvider.CurrentTime.Date.AddDays(-servicesConfig.CatalogDaysToCheck);
 		protected virtual DateTime DeliveredAfterDateScan => dateTimeProvider.CurrentTime.Date.AddDays(-servicesConfig.ScanDaysToCheck);
 
-		public virtual async Task<int> CatalogAsync()
+		public virtual async Task CatalogAsync()
         {
-			var messages = new List<Message>();
-
 			using (var client = new ImapClient())
 			{
 				await client.ConnectAsync(MailboxConfig.Url, MailboxConfig.Port, SecureSocketOptions.SslOnConnect);
@@ -54,11 +56,11 @@ namespace ProtectorLib.Providers
 				await junkFolder.OpenAsync(FolderAccess.ReadOnly);
 				var uids = await junkFolder.SearchAsync(SearchQuery.DeliveredAfter(DeliveredAfterDate));
 
+				var mails = new List<Models.EmailDTO>();
 				foreach (var uid in uids)
 				{
 					var message = await junkFolder.GetMessageAsync(uid);
-
-					messages.Add(new Message
+					mails.Add(new Models.EmailDTO
 					{
 						ImapUid = (int)uid.Id,
 						Mailbox = MailBoxName,
@@ -66,15 +68,15 @@ namespace ProtectorLib.Providers
 						Sender = message.From.Mailboxes.FirstOrDefault()?.Address,
 						Subject = message.Subject,
 						Content = string.IsNullOrEmpty(message.TextBody) ? "TEXT BODY NOT PROVIDED. ONLY HTML" : message.TextBody,
-						ReceivedTime = message.Date.DateTime
+						ReceivedTime = message.Date.DateTime,
+						VersionUpdateTime = dateTimeProvider.CurrentTime
 					});
 				}
+				messagingService.SendMessages(mails);
 
 				await client.DisconnectAsync(true);
 				logger.LogInformation("Client disconnected");
 			}
-
-			return await messagesHandler.CatalogMessagesAsync(messages);
 		}
 
 		public virtual async Task<(int countBefore, int countAfter)> DeleteMessagesAsync()

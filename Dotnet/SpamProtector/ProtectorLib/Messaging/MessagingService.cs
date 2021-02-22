@@ -3,8 +3,10 @@ using ProtectorLib.Models;
 
 using RabbitMQ.Client;
 
+using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
+using System.Linq;
 
 namespace ProtectorLib.Messaging
 {
@@ -17,51 +19,72 @@ namespace ProtectorLib.Messaging
             this.config = config;
         }
 
-        public void SendMessage(ServiceRun serviceRunMessage)
+        public void SendMessage(ServiceRunDTO serviceRunMessage)
         {
-            PushMessage(
-                JsonSerializer.Serialize(new Models.Message()
-                {
-                    MessageType = MessageType.ServiceRun,
-                    Content = JsonSerializer.Serialize(serviceRunMessage)
-                }), 
-                MessageType.ServiceRun);
-        }
-
-        public void SendMessage(Email emailMessage)
-        {
-            PushMessage(
-                JsonSerializer.Serialize(new Models.Message()
-                {
-                    MessageType = MessageType.Email,
-                    Content = JsonSerializer.Serialize(emailMessage)
-                }),
-                MessageType.Email);
-        }
-
-        public void SendMessage(UsedRule usedRuleMessage)
-        {
-            PushMessage(
-                JsonSerializer.Serialize(new Models.Message()
-                {
-                    MessageType = MessageType.UsedRule,
-                    Content = JsonSerializer.Serialize(usedRuleMessage)
-                }),
-                MessageType.UsedRule);
-        }
-
-        private void PushMessage(string messageBody, MessageType msgType)
-        {
-            var factory = new ConnectionFactory() { HostName = config.Host };
-            factory.UserName = config.AccountLogin;
-            factory.Password = config.AccountPassword;
-            using (var connection = factory.CreateConnection())
-            using (var channel = connection.CreateModel())
+            PushMessage(new QueueMessage
             {
-                channel.BasicPublish(exchange: config.ExchangeName,
-                    routingKey: msgType.ToString(),
-                    basicProperties: null,
-                    body: Encoding.UTF8.GetBytes(messageBody));
+                MessageType = MessageType.ServiceRun,
+                Content = JsonSerializer.Serialize(serviceRunMessage)
+            });
+        }
+
+        public void SendMessage(EmailDTO emailMessage)
+        {
+            PushMessage(new QueueMessage
+            {
+                MessageType = MessageType.Email,
+                Content = JsonSerializer.Serialize(emailMessage)
+            });
+        }
+
+        public void SendMessage(UsedRuleDTO usedRuleMessage)
+        {
+            PushMessage(new QueueMessage
+            {
+                MessageType = MessageType.UsedRule,
+                Content = JsonSerializer.Serialize(usedRuleMessage)
+            });
+        }
+
+        public void SendMessages(IEnumerable<EmailDTO> emailMessages)
+        {
+            PushMessages(
+                emailMessages.Select(email => new QueueMessage
+                {
+                    Content = JsonSerializer.Serialize(email),
+                    MessageType = MessageType.Email
+                }).ToList()
+            );
+        }
+
+        private void PushMessage(QueueMessage message)
+        {
+            PushMessages(new List<QueueMessage>() { message });
+        }
+
+        private void PushMessages(IEnumerable<QueueMessage> messages)
+        {
+            var factory = new ConnectionFactory()
+            {
+                HostName = config.Host,
+                UserName = config.AccountLogin,
+                Password = config.AccountPassword
+            };
+
+            using var connection = factory.CreateConnection();
+            using var channel = connection.CreateModel();
+
+            IBasicProperties props = channel.CreateBasicProperties();
+            props.ContentType = "text/plain";
+            props.DeliveryMode = 2;
+
+            foreach (var msg in messages)
+            {
+                channel.BasicPublish(
+                    exchange: config.ExchangeName,
+                    routingKey: msg.MessageType.ToString(),
+                    basicProperties: props,
+                    body: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(msg)));
             }
         }
     }

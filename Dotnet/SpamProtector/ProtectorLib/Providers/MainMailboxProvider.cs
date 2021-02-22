@@ -9,6 +9,7 @@ using MimeKit;
 
 using ProtectorLib.Configuration;
 using ProtectorLib.Handlers;
+using ProtectorLib.Messaging;
 
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,8 +27,9 @@ namespace ProtectorLib.Providers
             IMessagesHandler messagesHandler,
             IRulesProvider rulesProvider,
 			IDateTimeProvider dateTimeProvider,
+            IMessagingService messagingService,
             ILogger<MainMailboxProvider> logger) 
-			: base(servicesConfig, messagesHandler, dateTimeProvider, logger)
+			: base(servicesConfig, messagesHandler, dateTimeProvider, messagingService, logger)
         {
             this.mailboxesConfig = mailboxesConfig;
             this.rulesProvider = rulesProvider;
