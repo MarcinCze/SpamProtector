@@ -60,7 +60,6 @@ namespace MessageEmailHandlerService
             var consumer = new EventingBasicConsumer(channel);
             consumer.Received += Consumer_Received;
             channel.BasicConsume(queue: "queue_email", autoAck: false, consumer: consumer);
-
         }
 
         protected void CloseConnection()
@@ -74,6 +73,7 @@ namespace MessageEmailHandlerService
         private void Consumer_Received(object sender, BasicDeliverEventArgs e)
         {
             var task = Task.Run(() => HandleMessage(Encoding.UTF8.GetString(e.Body.ToArray())));
+            logger.LogInformation($"Message received and saved with result: {task.Result}");
 
             if (task.Result)
                 channel.BasicAck(deliveryTag: e.DeliveryTag, multiple: false);
@@ -87,7 +87,6 @@ namespace MessageEmailHandlerService
             {
                 var msgObj = JsonSerializer.Deserialize<QueueMessage>(message);
                 var content = JsonSerializer.Deserialize<EmailDTO>(msgObj.Content);
-                logger.LogInformation($"Handling incoming message. Mailbox {content.Mailbox} Sender {content.Sender}");
                 await messageHandler.HandleAsync(content);
 
                 return true;

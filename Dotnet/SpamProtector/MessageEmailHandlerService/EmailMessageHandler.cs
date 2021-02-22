@@ -1,9 +1,12 @@
-﻿using ProtectorLib.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
+
 using ProtectorLib;
+using ProtectorLib.Models;
+
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MessageEmailHandlerService
 {
@@ -24,47 +27,91 @@ namespace MessageEmailHandlerService
 
                 Message dbMessage = null;
 
+                // Looking for message by given db id
                 if (message.Id != 0)
                 {
                     dbMessage = await dbContext.Messages.FirstAsync(x => x.Id == message.Id);
 
-                    if (dbMessage.VersionUpdateTime >= message.VersionUpdateTime)
+                    if (!ShouldBeUpdated(message, dbMessage))
                         return;
 
-                    dbMessage.CatalogTime = message.CatalogTime;
-                    dbMessage.ImapUid = message.ImapUid;
-                    dbMessage.Content = message.Content;
-                    dbMessage.IsRemoved = message.IsRemoved;
-                    dbMessage.Mailbox = message.Mailbox;
-                    dbMessage.PlannedRemoveTime = message.PlannedRemoveTime;
-                    dbMessage.ReceivedTime = message.ReceivedTime;
-                    dbMessage.Recipient = message.Recipient;
-                    dbMessage.RemoveTime = message.RemoveTime;
-                    dbMessage.Sender = message.Sender;
-                    dbMessage.Subject = message.Subject;
-                    dbMessage.VersionUpdateTime = message.VersionUpdateTime;
+                    CopyValues(message, ref dbMessage);
+                    await dbContext.SaveChangesAsync();
+                    return;
                 }
-                else
+                
+                // Looking for similar message already in database
+                if (await dbContext.Messages.AnyAsync(x => 
+                    x.ImapUid == message.ImapUid 
+                    && x.Subject == message.Subject 
+                    && x.Sender == message.Sender 
+                    && x.Mailbox == message.Mailbox
+                    && x.ReceivedTime == message.ReceivedTime))
                 {
-                    await dbContext.Messages.AddAsync(new Message
+                    var mails = dbContext.Messages
+                        .Where(x => x.ImapUid == message.ImapUid 
+                            && x.Subject == message.Subject 
+                            && x.Sender == message.Sender 
+                            && x.Mailbox == message.Mailbox 
+                            && x.ReceivedTime == message.ReceivedTime);
+
+                    if (await mails.CountAsync() == 1)
                     {
-                        CatalogTime = message.CatalogTime,
-                        Content = message.Content,
-                        ImapUid = message.ImapUid,
-                        IsRemoved = message.IsRemoved,
-                        Mailbox = message.Mailbox,
-                        PlannedRemoveTime = message.PlannedRemoveTime,
-                        ReceivedTime = message.ReceivedTime,
-                        Recipient = message.Recipient,
-                        RemoveTime = message.RemoveTime,
-                        Sender = message.Sender,
-                        Subject = message.Sender,
-                        VersionUpdateTime = message.VersionUpdateTime
-                    });
+                        dbMessage = await mails.FirstAsync();
+
+                        if (!ShouldBeUpdated(message, dbMessage))
+                            return;
+
+                        CopyValues(message, ref dbMessage);
+                        await dbContext.SaveChangesAsync();
+                        return;
+                    }
+
+                    if (await mails.CountAsync() > 1)
+                        throw new Exception("More than one message with given params");
                 }
 
+                // New message
+                dbMessage = new Message();
+                CopyValues(message, ref dbMessage);
+                await dbContext.AddAsync(dbMessage);
                 await dbContext.SaveChangesAsync();
+                return;
             }
+        }
+
+        private bool ShouldBeUpdated(EmailDTO queueMessage, Message dbMessage)
+        {
+            if (dbMessage.VersionUpdateTime >= queueMessage.VersionUpdateTime)
+                return false;
+
+            return !(queueMessage.CatalogTime == dbMessage.CatalogTime 
+                && queueMessage.Content == dbMessage.Content
+                && queueMessage.ImapUid == dbMessage.ImapUid
+                && queueMessage.IsRemoved == dbMessage.IsRemoved
+                && queueMessage.Mailbox == dbMessage.Mailbox
+                && queueMessage.PlannedRemoveTime == dbMessage.PlannedRemoveTime
+                && queueMessage.ReceivedTime == dbMessage.ReceivedTime
+                && queueMessage.Recipient == dbMessage.Recipient
+                && queueMessage.RemoveTime == dbMessage.RemoveTime
+                && queueMessage.Sender == dbMessage.Sender
+                && queueMessage.Subject == dbMessage.Subject);
+        }
+
+        private void CopyValues(EmailDTO queueMessage, ref Message dbMessage)
+        {
+            dbMessage.CatalogTime = queueMessage.CatalogTime;
+            dbMessage.ImapUid = queueMessage.ImapUid;
+            dbMessage.Content = queueMessage.Content;
+            dbMessage.IsRemoved = queueMessage.IsRemoved;
+            dbMessage.Mailbox = queueMessage.Mailbox;
+            dbMessage.PlannedRemoveTime = queueMessage.PlannedRemoveTime;
+            dbMessage.ReceivedTime = queueMessage.ReceivedTime;
+            dbMessage.Recipient = queueMessage.Recipient;
+            dbMessage.RemoveTime = queueMessage.RemoveTime;
+            dbMessage.Sender = queueMessage.Sender;
+            dbMessage.Subject = queueMessage.Subject;
+            dbMessage.VersionUpdateTime = queueMessage.VersionUpdateTime;
         }
     }
 }
