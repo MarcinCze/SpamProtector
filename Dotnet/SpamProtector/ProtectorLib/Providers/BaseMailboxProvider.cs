@@ -44,7 +44,7 @@ namespace ProtectorLib.Providers
 		protected virtual DateTime DeliveredAfterDate => dateTimeProvider.CurrentTime.Date.AddDays(-servicesConfig.CatalogDaysToCheck);
 		protected virtual DateTime DeliveredAfterDateScan => dateTimeProvider.CurrentTime.Date.AddDays(-servicesConfig.ScanDaysToCheck);
 
-		public virtual async Task CatalogAsync()
+		public virtual async Task<int> CatalogAsync()
         {
 			using (var client = new ImapClient())
 			{
@@ -69,6 +69,7 @@ namespace ProtectorLib.Providers
 						Subject = message.Subject,
 						Content = string.IsNullOrEmpty(message.TextBody) ? "TEXT BODY NOT PROVIDED. ONLY HTML" : message.TextBody,
 						ReceivedTime = message.Date.DateTime,
+						CatalogTime = dateTimeProvider.CurrentTime,
 						VersionUpdateTime = dateTimeProvider.CurrentTime
 					});
 				}
@@ -76,6 +77,8 @@ namespace ProtectorLib.Providers
 
 				await client.DisconnectAsync(true);
 				logger.LogInformation("Client disconnected");
+
+				return mails.Count;
 			}
 		}
 
