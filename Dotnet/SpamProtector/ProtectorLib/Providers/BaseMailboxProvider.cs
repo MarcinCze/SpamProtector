@@ -85,7 +85,7 @@ namespace ProtectorLib.Providers
 		public virtual async Task<(int countBefore, int countAfter)> DeleteMessagesAsync()
         {
 			var messagesToRemove = await messagesHandler.GetMessagesForRemovalAsync(MailBoxName);
-			var messagesRemoved = new List<int>();
+			var messagesRemoved = new List<Message>();
 
 			using (var client = new ImapClient())
 			{
@@ -109,10 +109,11 @@ namespace ProtectorLib.Providers
                 {
 					try
                     {
-						UniqueId uid = new UniqueId((uint)message.ImapUid);
+						var uid = new UniqueId((uint)message.ImapUid);
 						var mail = await junkFolder.GetMessageAsync(uid);
 						await junkFolder.AddFlagsAsync(uid, MessageFlags.Deleted, true);
-						messagesRemoved.Add(message.Id);
+						message.RemoveTime = dateTimeProvider.CurrentTime;
+						messagesRemoved.Add(message);
 					}
                     catch (Exception ex)
                     {
@@ -124,11 +125,12 @@ namespace ProtectorLib.Providers
 				logger.LogInformation("Junk folder expunged");
 				int countAfter = junkFolder.Count;
 
+				messagingService.SendMessages(messagesRemoved.ConvertToDto(dateTimeProvider.CurrentTime));
+
 				await DeleteConfirmationProcessAsync(client, junkFolder);
+
 				await client.DisconnectAsync(true);
 				logger.LogInformation("Client disconnected");
-
-				await messagesHandler.MarkMessagesAsRemovedAsync(messagesRemoved);
 
 				return (countBefore, countAfter);
 			}
@@ -140,8 +142,7 @@ namespace ProtectorLib.Providers
 
 		protected virtual async Task DeleteConfirmationProcessAsync(ImapClient imapClient, IMailFolder junkFolder)
         {
-			var messagesForChecking = await messagesHandler.GetRemovedMessagesForCheckingAsync();
-			List<Message> messagesRemovedPermamently = messagesForChecking.ToList();
+			List<Message> messagesForChecking = (await messagesHandler.GetRemovedMessagesForCheckingAsync())?.ToList();
 
 			if (!messagesForChecking.Any())
 				return;
@@ -150,18 +151,22 @@ namespace ProtectorLib.Providers
 
 			if (!uids.Any())
             {
-				logger.LogWarning($"{nameof(DeleteConfirmationProcessAsync)}: all messages doesn't exists which is OK");
-				await messagesHandler.SetMessagesAsPermamentlyRemovedAsync(messagesForChecking.GetIds());
+				logger.LogInformation($"{nameof(DeleteConfirmationProcessAsync)}: all messages doesn't exists which is OK");
+				messagesForChecking.ForEach(msg => msg.IsRemoved = true);
+				messagingService.SendMessages(messagesForChecking.ConvertToDto(dateTimeProvider.CurrentTime));
 				return;
             }
 
             foreach (var message in uids)
             {
 				logger.LogError($"Message with ID {message.Id} should be removed but exists");
-				messagesRemovedPermamently.RemoveAll(x => x.ImapUid == message.Id);
+				messagesForChecking.RemoveAll(x => x.ImapUid == message.Id);
             }
 
-			await messagesHandler.SetMessagesAsPermamentlyRemovedAsync(messagesRemovedPermamently.GetIds());
+			messagesForChecking.ForEach(msg => msg.IsRemoved = true);
+			messagingService.SendMessages(messagesForChecking.ConvertToDto(dateTimeProvider.CurrentTime));
+
+			logger.LogInformation($"{messagesForChecking.Count} are set as PERMAMENTLY removed");
 		}
 	}
 }

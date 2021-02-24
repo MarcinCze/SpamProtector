@@ -64,6 +64,9 @@ namespace ProtectorLib.Messaging
 
         private void PushMessages(IEnumerable<QueueMessage> messages)
         {
+            if (!messages.Any())
+                return;
+
             var factory = new ConnectionFactory()
             {
                 HostName = config.Host,
