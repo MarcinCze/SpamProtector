@@ -28,7 +28,8 @@ namespace CatalogService
 
         protected override async Task ExecuteBodyAsync()
         {
-            await controller.CurrentMailboxProvider.CatalogAsync();
+            int counter = await controller.CurrentMailboxProvider.CatalogAsync();
+            ServiceResultAdditionalInfo = $"Messages sent for checking: {counter}";
         }
 
         protected override Task<bool> ShouldItRunAsync() =>
