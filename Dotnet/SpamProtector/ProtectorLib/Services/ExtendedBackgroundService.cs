@@ -83,7 +83,10 @@ namespace ProtectorLib.Services
                     finally
                     {
                         stopWatch.Stop();
-                        await SaveLastRunAsync();
+
+                        if (status != ServiceStatus.ERROR)
+                            await SaveLastRunAsync();
+                        
                         logger.LogInformation("Service LastRun saved");
                         await SaveFinishAsync(status, $"{stopWatch.ElapsedMilliseconds} ms");
                         logger.LogInformation("Service finish saved");
