@@ -92,8 +92,9 @@ pipeline {
                     steps {
                         script {
                             import groovy.util.XmlParser
-                            def xml = new XmlParser.parseFile('.\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj')
-                            println xml
+                            def test_report = readFile ".\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj"
+                            def xml = new XmlParser()
+                            def test_report_xml = xml.parseText(test_report)
                         }
                     }
                 }
