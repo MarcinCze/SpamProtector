@@ -47,17 +47,36 @@ pipeline {
             }
         }
 
-        // stage('Release') {
-        //     when {
-        //         expression { buildMode == 'release' }
-        //     }
-        //     stages {
-        //         stage ('Stop IIS') {
-        //             steps {
-        //                 echo 'TEST'
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Release') {
+            // when {
+            //     expression { buildMode == 'release' }
+            // }
+            stages {
+                stage ('Stop services') {
+                    steps {
+                        bat 'sc stop SpamProtector-Catalog'
+                        bat 'sc stop SpamProtector-Delete'
+                        bat 'sc stop SpamProtector-Marking'
+                        bat 'sc stop SpamProtector-Scan'
+                        bat 'sc stop SpamProtector-MessageEmailHandler'
+                        bat 'sc stop SpamProtector-MessageServiceRunHandler'
+                    }
+                }
+                stage ('Changing configs') {
+                    steps {
+                            script {
+                            def appSettingsJson = readJSON file: '.\\Dotnet\\SpamProtector\\Shared\\appsettings.json'
+                            appSettingsJson['ConnectionStrings']['SpamProtectorDBContext'] = 'Data Source=.;Initial Catalog=SpamProtectorDB;User Id='+SP_DB_USER+';Password='+SP_DB_PASS+';'
+                            appSettingsJson['Messaging']['Host'] = SP_RABBITMQ_HOST
+                            appSettingsJson['Messaging']['ExchangeName'] = SP_RABBITMQ_EXCHANGE
+                            appSettingsJson['Messaging']['AccountLogin'] = SP_RABBITMQ_USER
+                            appSettingsJson['Messaging']['AccountPassword'] = SP_RABBITMQ_PASS
+
+                            writeJSON file: '.\\Server-NetCoreSuite\\LifeAssistantSuite\\appsettings.json', json: appSettingsJson, pretty: 4
+                        }
+                    }
+                }
+            }
+        }
     }
 }
