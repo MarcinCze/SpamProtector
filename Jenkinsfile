@@ -71,8 +71,11 @@ pipeline {
                             appSettingsJson['Messaging']['ExchangeName'] = SP_RABBITMQ_EXCHANGE
                             appSettingsJson['Messaging']['AccountLogin'] = SP_RABBITMQ_USER
                             appSettingsJson['Messaging']['AccountPassword'] = SP_RABBITMQ_PASS
-
-                            writeJSON file: '.\\Server-NetCoreSuite\\LifeAssistantSuite\\appsettings.json', json: appSettingsJson, pretty: 4
+                            appSettingsJson['Mailboxes']['MainBox']['Url'] = SP_MAILBOX_MAIN_URL
+                            appSettingsJson['Mailboxes']['MainBox']['Port'] = SP_MAILBOX_MAIN_PORT
+                            appSettingsJson['Mailboxes']['MainBox']['UserName'] = SP_MAILBOX_MAIN_USER
+                            appSettingsJson['Mailboxes']['MainBox']['Password'] = SP_MAILBOX_MAIN_PASS
+                            writeJSON file: '.\\Dotnet\\SpamProtector\\Shared\\appsettings.json', json: appSettingsJson, pretty: 4
                         }
                     }
                 }
