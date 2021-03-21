@@ -24,6 +24,10 @@ pipeline {
         SP_MAILBOX_MAIN_PORT    = credentials('SP_MAILBOX_MAIN_PORT')
         SP_MAILBOX_MAIN_USER    = credentials('SP_MAILBOX_MAIN_USER')
         SP_MAILBOX_MAIN_PASS    = credentials('SP_MAILBOX_MAIN_PASS')
+        SP_MAILBOX_SPAM_URL     = credentials('SP_MAILBOX_SPAM_URL')
+        SP_MAILBOX_SPAM_PORT    = credentials('SP_MAILBOX_SPAM_PORT')
+        SP_MAILBOX_SPAM_USER    = credentials('SP_MAILBOX_SPAM_USER')
+        SP_MAILBOX_SPAM_PASS    = credentials('SP_MAILBOX_SPAM_PASS')
     }
     stages {
         stage('Develop') {
@@ -54,12 +58,13 @@ pipeline {
             stages {
                 stage ('Stop services') {
                     steps {
-                        bat 'sc stop SpamProtector-Catalog'
-                        bat 'sc stop SpamProtector-Delete'
-                        bat 'sc stop SpamProtector-Marking'
-                        bat 'sc stop SpamProtector-Scan'
-                        bat 'sc stop SpamProtector-MessageEmailHandler'
-                        bat 'sc stop SpamProtector-MessageServiceRunHandler'
+                        echo 'stopping services'
+                        // bat 'sc stop SpamProtector-Catalog'
+                        // bat 'sc stop SpamProtector-Delete'
+                        // bat 'sc stop SpamProtector-Marking'
+                        // bat 'sc stop SpamProtector-Scan'
+                        // bat 'sc stop SpamProtector-MessageEmailHandler'
+                        // bat 'sc stop SpamProtector-MessageServiceRunHandler'
                     }
                 }
                 stage ('Changing configs') {
@@ -75,10 +80,26 @@ pipeline {
                             appSettingsJson['Mailboxes']['MainBox']['Port'] = SP_MAILBOX_MAIN_PORT
                             appSettingsJson['Mailboxes']['MainBox']['UserName'] = SP_MAILBOX_MAIN_USER
                             appSettingsJson['Mailboxes']['MainBox']['Password'] = SP_MAILBOX_MAIN_PASS
+                            appSettingsJson['Mailboxes']['SpamBox']['Url'] = SP_MAILBOX_SPAM_URL
+                            appSettingsJson['Mailboxes']['SpamBox']['Port'] = SP_MAILBOX_SPAM_PORT
+                            appSettingsJson['Mailboxes']['SpamBox']['UserName'] = SP_MAILBOX_SPAM_USER
+                            appSettingsJson['Mailboxes']['SpamBox']['Password'] = SP_MAILBOX_SPAM_PASS
                             writeJSON file: '.\\Dotnet\\SpamProtector\\Shared\\appsettings.json', json: appSettingsJson, pretty: 4
                         }
                     }
                 }
+                stage ('Changing version') {
+                    steps {
+                        script {
+                            def file = new File '.\\Dotnet\SpamProtector\\CatalogService\\CatalogService.csproj'
+                            def xml = new XmlParser.parseText(file)
+                            println xml
+                        }
+                    }
+                }
+                // stage ('Publish services') {
+                //     bat 'dotnet publish .\\Dotnet\\SpamProtector\\SpamProtector.sln --configuration Release'
+                // }
             }
         }
     }
