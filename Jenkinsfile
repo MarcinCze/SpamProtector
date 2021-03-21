@@ -1,3 +1,5 @@
+import groovy.util.XmlParser
+
 def buildMode = env.JOB_NAME.substring(env.JOB_NAME.lastIndexOf(' ') + 1).toLowerCase()
 def workspace = "C:\\JenkinsWorkspace\\SpamProtector_" + buildMode
 
