@@ -1,3 +1,5 @@
+import groovy.xml.XmlParser
+
 def buildMode = env.JOB_NAME.substring(env.JOB_NAME.lastIndexOf(' ') + 1).toLowerCase()
 def workspace = "C:\\JenkinsWorkspace\\SpamProtector_" + buildMode
 
@@ -91,7 +93,7 @@ pipeline {
                 stage ('Changing version') {
                     steps {
                         script {
-                            import groovy.xml.XmlParser
+                            
                             def rootNode = new XmlParser().parseFile(".\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj")
                             println rootNode
                         }
