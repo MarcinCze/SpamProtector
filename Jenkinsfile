@@ -34,16 +34,16 @@ pipeline {
                         checkout scm
                     }
                 }
-                // stage ('Restore Nugets') {
-                //     steps {
-                //         bat 'dotnet restore .\\Server-NetCoreSuite\\LifeAssistantSuite.sln'
-                //     }
-                // }
-                // stage ('Build project') {
-                //     steps {
-                //         bat 'dotnet build .\\Server-NetCoreSuite\\LifeAssistantSuite.sln --configuration Release'
-                //     }
-                // }
+                stage ('Restore Nugets') {
+                    steps {
+                        bat 'dotnet restore .\\Dotnet\\SpamProtector\\SpamProtector.sln'
+                    }
+                }
+                stage ('Build project') {
+                    steps {
+                        bat 'dotnet build .\\Dotnet\\SpamProtector\\SpamProtector.sln --configuration Release'
+                    }
+                }
             }
         }
 
