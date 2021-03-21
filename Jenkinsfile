@@ -92,11 +92,11 @@ pipeline {
                     steps {
                         script {
                             def fileContent = readFile ".\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj"
-                            def replaced = txt.split('\n').collect { l ->
+                            def replaced = fileContent.split('\n').collect { l ->
                                 def targetLine = l.toLowerCase().trim().startsWith('<FileVersion>')
                                 targetLine ? '<FileVersion>TEST</FileVersion>' : l
                             }.join('\n')
-                            writeFile(file: ".\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj", text: fileContent, encoding: "UTF-8")
+                            writeFile(file: ".\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj", text: replaced, encoding: "UTF-8")
                         }
                     }
                 }
