@@ -1,5 +1,3 @@
-import groovy.xml.XmlParser
-
 def buildMode = env.JOB_NAME.substring(env.JOB_NAME.lastIndexOf(' ') + 1).toLowerCase()
 def workspace = "C:\\JenkinsWorkspace\\SpamProtector_" + buildMode
 
@@ -93,9 +91,9 @@ pipeline {
                 stage ('Changing version') {
                     steps {
                         script {
-                            
-                            def rootNode = new XmlParser().parseFile(".\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj")
-                            println rootNode
+                            def fileContent = readFile ".\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj"
+                            fileContent.replaceAll("<FileVersion>*</FileVersion>", "<FileVersion>TEST</FileVersion>")
+                            writeFile(file: ".\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj", text: fileContent, encoding: "UTF-8")
                         }
                     }
                 }
