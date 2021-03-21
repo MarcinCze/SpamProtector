@@ -91,8 +91,7 @@ pipeline {
                 stage ('Changing version') {
                     steps {
                         script {
-                            def file = new File '.\\Dotnet\SpamProtector\\CatalogService\\CatalogService.csproj'
-                            def xml = new XmlParser.parseText(file)
+                            def xml = new XmlParser.parseFile('.\\Dotnet\SpamProtector\\CatalogService\\CatalogService.csproj')
                             println xml
                         }
                     }
