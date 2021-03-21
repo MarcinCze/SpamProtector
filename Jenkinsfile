@@ -91,10 +91,9 @@ pipeline {
                 stage ('Changing version') {
                     steps {
                         script {
-                            import groovy.util.XmlParser
-                            def test_report = readFile ".\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj"
-                            def xml = new XmlParser()
-                            def test_report_xml = xml.parseText(test_report)
+                            import groovy.xml.XmlParser
+                            def rootNode = new XmlParser().parseFile(".\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj")
+                            println rootNode
                         }
                     }
                 }
