@@ -123,7 +123,9 @@ pipeline {
                     }
                 }
                 stage ('Publish services') {
-                    bat 'dotnet publish .\\Dotnet\\SpamProtector\\SpamProtector.sln --configuration Release'
+                    steps {
+                        bat 'dotnet publish .\\Dotnet\\SpamProtector\\SpamProtector.sln --configuration Release'
+                    }
                 }
             }
         }
