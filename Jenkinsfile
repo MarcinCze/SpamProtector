@@ -13,6 +13,14 @@ pipeline {
             customWorkspace workspace
         }
     }
+    parameters {
+        booleanParam(name: 'DEPLOY_SCAN_SERVICE', defaultValue: false, description: 'Deploy ScanService?')
+        booleanParam(name: 'DEPLOY_CATALOG_SERVICE', defaultValue: false, description: 'Deploy CatalogService?')
+        booleanParam(name: 'DEPLOY_DELETE_SERVICE', defaultValue: false, description: 'Deploy DeleteService?')
+        booleanParam(name: 'DEPLOY_MARKING_SERVICE', defaultValue: false, description: 'Deploy MarkingService?')
+        booleanParam(name: 'DEPLOY_MSG_EMAIL_HANDLER_SERVICE', defaultValue: false, description: 'Deploy MessageEmailHandlerService?')
+        booleanParam(name: 'DEPLOY_MSG_SERVICERUN_HANDLER_SERVICE', defaultValue: false, description: 'Deploy MessageServiceRunHandlerService?')
+    }
     environment {
         SP_DB_USER              = credentials('SP_DB_USER')
         SP_DB_PASS              = credentials('SP_DB_PASS')
@@ -59,12 +67,12 @@ pipeline {
                 stage ('Stop services') {
                     steps {
                         echo 'stopping services'
-                        // bat 'sc stop SpamProtector-Catalog'
-                        // bat 'sc stop SpamProtector-Delete'
-                        // bat 'sc stop SpamProtector-Marking'
-                        // bat 'sc stop SpamProtector-Scan'
-                        // bat 'sc stop SpamProtector-MessageEmailHandler'
-                        // bat 'sc stop SpamProtector-MessageServiceRunHandler'
+                        bat 'sc stop SpamProtector-Catalog'
+                        bat 'sc stop SpamProtector-Delete'
+                        bat 'sc stop SpamProtector-Marking'
+                        bat 'sc stop SpamProtector-Scan'
+                        bat 'sc stop SpamProtector-MessageEmailHandler'
+                        bat 'sc stop SpamProtector-MessageServiceRunHandler'
                     }
                 }
                 stage ('Changing configs') {
@@ -125,6 +133,21 @@ pipeline {
                 stage ('Publish services') {
                     steps {
                         bat 'dotnet publish .\\Dotnet\\SpamProtector\\SpamProtector.sln --configuration Release'
+                    }
+                }
+                stage ('Deploy services') {
+                    steps {
+                        echo 'deploy services'
+                    }
+                }
+                stage ('Start services') {
+                    steps {
+                        bat 'sc start SpamProtector-Catalog'
+                        bat 'sc start SpamProtector-Delete'
+                        bat 'sc start SpamProtector-Marking'
+                        bat 'sc start SpamProtector-Scan'
+                        bat 'sc start SpamProtector-MessageEmailHandler'
+                        bat 'sc start SpamProtector-MessageServiceRunHandler'
                     }
                 }
             }
