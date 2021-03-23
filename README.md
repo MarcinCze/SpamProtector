@@ -1,15 +1,26 @@
 # SpamProtector
 
-## Schedule
-* Scan
-  * Every 10 min
-* Catalog MAIN
-  * Everyday @ 06:30, 12:30, 23:30
-* Catalog SPAM
-  * Everyday @ 06:45, 12:45, 23:45
-* Mark for delete and report
-  * Mondays, Wednesdays, Fridays and Sundays @ 20:00
-* Remove from MAIN
-  * Everyday at between 22:00 - 06:00 @ 0th, 20th, 40th minute
-* Remove from SPAM
-  * Everyday at between 22:00 - 06:00 @ 15th, 30th, 45th minute
+## About
+Noone likes the spam mails. I was tolerating it but recently one of my mailboxes was attacked by scammers and I'm receiving over 1k spam each day. Configuring filters in my hosting provider was enough till the moment when they removed that functionality. I had to invent something new.
+
+Idea of this suite is very simply. Service is scanning mailbox (only inbox) and checking if the mail is spam or not, based on configured rules (by subject, by domain, by sender). The problem was that this approach is not enough because I lost control and possible important mails. Because of that there are services that are cataloging the spam and removing 
+trash after given time.
+
+### Services
+- ScanService - service responsible for scanning the mailbox and if spam is found, moving to junk folder
+- CatalogService - service responsible for inserting spam mail metadata into database
+- MarkingService - service responsible for setting PlannedRemoveTime for each new spam mail
+- DeleteService - service responsible for removing given amount of spam mails and for double checking if spam was really removed
+- MessageEmailHandlerService - service responsible for listening RabbitMQ messages which hold spam metadata information (insert/update)
+- MessageServiceRunHandlerService - service responsible for listening RabbitMQ messages which hold information about service run status
+
+## Architecture
+todo
+
+## Tech Stack
+- .NET 5.0
+- EntityFrameworkCore
+- RabbitMQ
+- WorkerService
+- MSSQL Server 2019
+- MailKit

@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarkingService", "MarkingSe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProtectorLib", "ProtectorLib\ProtectorLib.csproj", "{9C49ED60-F4C0-4392-8AA9-00E4E2DC3E04}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "ProtectorDatabase", "ProtectorDatabase\ProtectorDatabase.sqlproj", "{3C94B386-507D-49F3-A9E8-22E76AD1CDE9}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScanService", "ScanService\ScanService.csproj", "{CA5B133E-7C59-4FDA-9E60-9BA4B87F552E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CatalogService", "CatalogService\CatalogService.csproj", "{0BA2AB83-4DA9-4416-A943-2EF4FA63E3C3}"
@@ -25,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProtectorLib.Models", "Prot
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageServiceRunHandlerService", "MessageServiceRunHandlerService\MessageServiceRunHandlerService.csproj", "{E18302E8-8858-4C98-985B-49309721D95D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageEmailHandlerService", "MessageEmailHandlerService\MessageEmailHandlerService.csproj", "{0797C43B-3597-4E44-AC36-FD6803A558AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageEmailHandlerService", "MessageEmailHandlerService\MessageEmailHandlerService.csproj", "{0797C43B-3597-4E44-AC36-FD6803A558AA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MessageConsumers", "MessageConsumers", "{C3AD736A-ED38-4EF3-BCF6-AF84AF93F4D5}"
 EndProject
@@ -43,12 +41,6 @@ Global
 		{9C49ED60-F4C0-4392-8AA9-00E4E2DC3E04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C49ED60-F4C0-4392-8AA9-00E4E2DC3E04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C49ED60-F4C0-4392-8AA9-00E4E2DC3E04}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3C94B386-507D-49F3-A9E8-22E76AD1CDE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3C94B386-507D-49F3-A9E8-22E76AD1CDE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3C94B386-507D-49F3-A9E8-22E76AD1CDE9}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{3C94B386-507D-49F3-A9E8-22E76AD1CDE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3C94B386-507D-49F3-A9E8-22E76AD1CDE9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3C94B386-507D-49F3-A9E8-22E76AD1CDE9}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{CA5B133E-7C59-4FDA-9E60-9BA4B87F552E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CA5B133E-7C59-4FDA-9E60-9BA4B87F552E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA5B133E-7C59-4FDA-9E60-9BA4B87F552E}.Release|Any CPU.ActiveCfg = Release|Any CPU

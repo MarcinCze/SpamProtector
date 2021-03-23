@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
 
 using ProtectorLib.Controllers;
-using ProtectorLib.Models.Enums;
 using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 using ProtectorLib.Services;
@@ -11,17 +10,14 @@ using System.Threading.Tasks;
 
 namespace ScanService
 {
-    public class Worker : ExtendedBackgroundService
+    public class Worker : MultiProviderExtendedBackgroundService
     {
-        private readonly IMailboxController controller;
-
         public Worker(
             ILogger<Worker> logger,
             IMailboxController controller,
             IServiceRunHistoryHandler serviceRunHistoryHandler,
-            IServiceRunScheduleProvider serviceRunScheduleProvider) : base (logger, serviceRunHistoryHandler, serviceRunScheduleProvider)
+            IServiceRunScheduleProvider serviceRunScheduleProvider) : base (logger, controller, serviceRunHistoryHandler, serviceRunScheduleProvider)
         {
-            this.controller = controller;
         }
 
         protected override string ServiceName => nameof(ScanService);
@@ -33,23 +29,6 @@ namespace ScanService
         {
             int newSpamCounter = await controller.CurrentMailboxProvider.DetectSpamAsync();
             ServiceResultAdditionalInfo = $"Number of detected new spam mails: {newSpamCounter}";
-        }
-
-        protected override Task<bool> ShouldItRunAsync() =>
-            serviceRunScheduleProvider.ShouldRunAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName);
-
-        protected override async Task SaveStartAsync()
-            => await serviceRunHistoryHandler.RegisterStartAsync(ServiceName, ServiceVersion, controller.CurrentMailboxProvider.MailBoxName);
-
-        protected override async Task SaveFinishAsync(ServiceStatus status, string executionTime)
-            => await serviceRunHistoryHandler.RegisterFinishAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName, ServiceResultAdditionalInfo, status, executionTime);
-
-        protected override async Task SaveLastRunAsync()
-            => await serviceRunScheduleProvider.SaveLastRunAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName);
-
-        protected override void FinishActions()
-        {
-            controller.SetNextProvider();
         }
     }
 }

@@ -1,26 +1,21 @@
 using Microsoft.Extensions.Logging;
+using ProtectorLib.Controllers;
 using ProtectorLib.Handlers;
 using ProtectorLib.Providers;
 using ProtectorLib.Services;
-using ProtectorLib.Models.Enums;
-using System.Threading.Tasks;
-using ProtectorLib.Controllers;
 using System;
+using System.Threading.Tasks;
 
 namespace DeleteService
 {
-    public class Worker : ExtendedBackgroundService
+    public class Worker : MultiProviderExtendedBackgroundService
     {
-        private readonly IMailboxController controller;
-
         public Worker(
             ILogger<Worker> logger,
             IMailboxController controller,
             IServiceRunHistoryHandler serviceRunHistoryHandler,
-            IServiceRunScheduleProvider serviceRunScheduleProvider) : base(logger, serviceRunHistoryHandler, serviceRunScheduleProvider)
-        {
-            this.controller = controller;
-        }
+            IServiceRunScheduleProvider serviceRunScheduleProvider) : base(logger, controller, serviceRunHistoryHandler, serviceRunScheduleProvider)
+        { }
 
         protected override string ServiceName => nameof(DeleteService);
         protected override string ServiceVersion => GetType().Assembly.GetName().Version?.ToString();
@@ -30,23 +25,6 @@ namespace DeleteService
         {
             (int countBefore, int countAfter) = await controller.CurrentMailboxProvider.DeleteMessagesAsync();
             ServiceResultAdditionalInfo = $"BEFORE: {countBefore} AFTER: {countAfter}";
-        }
-
-        protected override Task<bool> ShouldItRunAsync() =>
-           serviceRunScheduleProvider.ShouldRunAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName);
-
-        protected override async Task SaveStartAsync()
-            => await serviceRunHistoryHandler.RegisterStartAsync(ServiceName, ServiceVersion, controller.CurrentMailboxProvider.MailBoxName);
-
-        protected override async Task SaveFinishAsync(ServiceStatus status, string executionTime)
-            => await serviceRunHistoryHandler.RegisterFinishAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName, ServiceResultAdditionalInfo, status, executionTime);
-
-        protected override async Task SaveLastRunAsync()
-            => await serviceRunScheduleProvider.SaveLastRunAsync(ServiceName, controller.CurrentMailboxProvider.MailBoxName);
-
-        protected override void FinishActions()
-        {
-            controller.SetNextProvider();
         }
     }
 }
