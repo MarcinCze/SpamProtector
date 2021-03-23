@@ -7,9 +7,6 @@ using Microsoft.Extensions.Logging;
 using ProtectorLib;
 using ProtectorLib.Configuration;
 using ProtectorLib.Extensions;
-using ProtectorLib.Handlers;
-using ProtectorLib.Messaging;
-using ProtectorLib.Providers;
 
 using System.IO;
 

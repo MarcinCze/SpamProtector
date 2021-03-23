@@ -54,7 +54,7 @@ namespace MessageEmailHandlerService
             factory.UserName = msgConfig.AccountLogin;
             factory.Password = msgConfig.AccountPassword;
 
-            connection = factory.CreateConnection();
+            connection = factory.CreateConnection(nameof(MessageEmailHandlerService));
             channel = connection.CreateModel();
 
             var consumer = new EventingBasicConsumer(channel);
