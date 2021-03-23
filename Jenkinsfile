@@ -137,7 +137,11 @@ pipeline {
                 }
                 stage ('Deploy services') {
                     steps {
-                        echo 'deploy services'
+                        script {
+                            if (param.DEPLOY_SCAN_SERVICE) {
+                                bat 'del "C:\\Program Files\\SpamProtector\\ScanService\\*.*" /f /q /s'
+                            }
+                        }
                     }
                 }
                 stage ('Start services') {
