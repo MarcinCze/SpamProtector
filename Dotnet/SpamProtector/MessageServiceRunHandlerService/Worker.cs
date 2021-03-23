@@ -53,7 +53,7 @@ namespace MessageServiceRunHandlerService
             factory.UserName = msgConfig.AccountLogin;
             factory.Password = msgConfig.AccountPassword;
 
-            connection = factory.CreateConnection();
+            connection = factory.CreateConnection(nameof(MessageServiceRunHandlerService));
             channel = connection.CreateModel();
             
             var consumer = new EventingBasicConsumer(channel);

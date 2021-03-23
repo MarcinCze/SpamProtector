@@ -74,7 +74,7 @@ namespace ProtectorLib.Messaging
                 Password = config.AccountPassword
             };
 
-            using var connection = factory.CreateConnection();
+            using var connection = factory.CreateConnection(nameof(ProtectorLib.Messaging.MessagingService));
             using var channel = connection.CreateModel();
 
             IBasicProperties props = channel.CreateBasicProperties();

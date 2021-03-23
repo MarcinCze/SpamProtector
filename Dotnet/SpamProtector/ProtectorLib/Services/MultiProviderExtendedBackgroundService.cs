@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+
 using ProtectorLib.Controllers;
 using ProtectorLib.Handlers;
 using ProtectorLib.Models.Enums;
 using ProtectorLib.Providers;
+
 using System.Threading.Tasks;
 
 namespace ProtectorLib.Services

@@ -67,23 +67,19 @@ pipeline {
                 stage ('Stop services') {
                     steps {
                         script {
-                            try {
-                                bat 'sc stop SpamProtector-Catalog'
-                                bat 'sc stop SpamProtector-Delete'
-                                bat 'sc stop SpamProtector-Marking'
-                                bat 'sc stop SpamProtector-Scan'
-                                bat 'sc stop SpamProtector-MessageEmailHandler'
-                                bat 'sc stop SpamProtector-MessageServiceRunHandler'
-                            }
-                            catch (ex) {
-                                bat 'exit 0'
-                            }
+                            try { bat 'sc stop SpamProtector-Catalog' } catch(ex) {}
+                            try { bat 'sc stop SpamProtector-Delete' } catch(ex) {}
+                            try { bat 'sc stop SpamProtector-Marking' } catch(ex) {}
+                            try { bat 'sc stop SpamProtector-Scan' } catch(ex) {}
+                            try { bat 'sc stop SpamProtector-MessageEmailHandler' } catch(ex) {}
+                            try { bat 'sc stop SpamProtector-MessageServiceRunHandler' } catch(ex) {}
                         }
                     }
                 }
                 stage ('Changing configs') {
                     steps {
                             script {
+                            echo "Changing file: .\\Dotnet\\SpamProtector\\Shared\\appsettings.json"
                             def appSettingsJson = readJSON file: '.\\Dotnet\\SpamProtector\\Shared\\appsettings.json'
                             appSettingsJson['ConnectionStrings']['SpamProtectorDBContext'] = 'Data Source=.;Initial Catalog=SpamProtectorDB;User Id='+SP_DB_USER+';Password='+SP_DB_PASS+';'
                             appSettingsJson['Messaging']['Host'] = SP_RABBITMQ_HOST
@@ -113,6 +109,7 @@ pipeline {
                                 ".\\Dotnet\\SpamProtector\\MessageEmailHandlerService\\MessageEmailHandlerService.csproj",
                                 ".\\Dotnet\\SpamProtector\\MessageServiceRunHandlerService\\MessageServiceRunHandlerService.csproj"
                             ].each { csprojFile -> 
+                                echo "Changing file: ${csprojFile}"
                                 def fileContent = readFile csprojFile
                                 def replaced = fileContent.split('\n').collect { l ->
                                     if(l.trim().startsWith('<FileVersion>')) {
@@ -174,17 +171,12 @@ pipeline {
                 stage ('Start services') {
                     steps {
                         script {
-                            try {
-                                bat 'sc start SpamProtector-Catalog'
-                                bat 'sc start SpamProtector-Delete'
-                                bat 'sc start SpamProtector-Marking'
-                                bat 'sc start SpamProtector-Scan'
-                                bat 'sc start SpamProtector-MessageEmailHandler'
-                                bat 'sc start SpamProtector-MessageServiceRunHandler'
-                            }
-                            catch (ex) {
-                                bat 'exit 0'
-                            }
+                            try { bat 'sc start SpamProtector-Catalog' } catch(ex) {}
+                            try { bat 'sc start SpamProtector-Delete' } catch(ex) {}
+                            try { bat 'sc start SpamProtector-Marking' } catch(ex) {}
+                            try { bat 'sc start SpamProtector-Scan' } catch(ex) {}
+                            try { bat 'sc start SpamProtector-MessageEmailHandler' } catch(ex) {}
+                            try { bat 'sc start SpamProtector-MessageServiceRunHandler' } catch(ex) {}
                         }
                     }
                 }
