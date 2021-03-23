@@ -66,13 +66,19 @@ pipeline {
             stages {
                 stage ('Stop services') {
                     steps {
-                        echo 'stopping services'
-                        bat 'sc stop SpamProtector-Catalog'
-                        bat 'sc stop SpamProtector-Delete'
-                        bat 'sc stop SpamProtector-Marking'
-                        bat 'sc stop SpamProtector-Scan'
-                        bat 'sc stop SpamProtector-MessageEmailHandler'
-                        bat 'sc stop SpamProtector-MessageServiceRunHandler'
+                        script {
+                            try {
+                                bat 'sc stop SpamProtector-Catalog'
+                                bat 'sc stop SpamProtector-Delete'
+                                bat 'sc stop SpamProtector-Marking'
+                                bat 'sc stop SpamProtector-Scan'
+                                bat 'sc stop SpamProtector-MessageEmailHandler'
+                                bat 'sc stop SpamProtector-MessageServiceRunHandler'
+                            }
+                            catch (ex) {
+                                bat 'exit 0'
+                            }
+                        }
                     }
                 }
                 stage ('Changing configs') {
@@ -138,8 +144,23 @@ pipeline {
                 stage ('Deploy services') {
                     steps {
                         script {
-                            if (param.DEPLOY_SCAN_SERVICE) {
+                            if (params.DEPLOY_SCAN_SERVICE) {
                                 bat 'del "C:\\Program Files\\SpamProtector\\ScanService\\*.*" /f /q /s'
+                            }
+                            if (params.DEPLOY_CATALOG_SERVICE) {
+                                bat 'del "C:\\Program Files\\SpamProtector\\CatalogService\\*.*" /f /q /s'
+                            }
+                            if (params.DEPLOY_DELETE_SERVICE) {
+                                bat 'del "C:\\Program Files\\SpamProtector\\DeleteService\\*.*" /f /q /s'
+                            }
+                            if (params.DEPLOY_MARKING_SERVICE) {
+                                bat 'del "C:\\Program Files\\SpamProtector\\MarkingService\\*.*" /f /q /s'
+                            }
+                            if (params.DEPLOY_MSG_EMAIL_HANDLER_SERVICE) {
+                                bat 'del "C:\\Program Files\\SpamProtector\\MessageEmailHandlerService\\*.*" /f /q /s'
+                            }
+                            if (params.DEPLOY_MSG_SERVICERUN_HANDLER_SERVICE) {
+                                bat 'del "C:\\Program Files\\SpamProtector\\MessageServiceRunHandlerService\\*.*" /f /q /s'
                             }
                         }
                     }
