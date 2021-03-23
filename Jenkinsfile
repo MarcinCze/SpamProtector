@@ -91,18 +91,40 @@ pipeline {
                 stage ('Changing version') {
                     steps {
                         script {
-                            def fileContent = readFile ".\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj"
-                            def replaced = fileContent.split('\n').collect { l ->
-                                def targetLine = l.trim().startsWith('<FileVersion>')
-                                targetLine ? '<FileVersion>TEST</FileVersion>' : l
-                            }.join('\n')
-                            writeFile(file: ".\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj", text: replaced)//, encoding: "UTF-8")
+                            [
+                                ".\\Dotnet\\SpamProtector\\CatalogService\\CatalogService.csproj",
+                                ".\\Dotnet\\SpamProtector\\DeleteService\\DeleteService.csproj",
+                                ".\\Dotnet\\SpamProtector\\MarkingService\\MarkingService.csproj",
+                                ".\\Dotnet\\SpamProtector\\ScanService\\ScanService.csproj",
+                                ".\\Dotnet\\SpamProtector\\MessageEmailHandlerService\\MessageEmailHandlerService.csproj",
+                                ".\\Dotnet\\SpamProtector\\MessageServiceRunHandlerService\\MessageServiceRunHandlerService.csproj"
+                            ].each { csprojFile -> 
+                                def fileContent = readFile csprojFile
+                                def replaced = fileContent.split('\n').collect { l ->
+                                    if(l.trim().startsWith('<FileVersion>')) {
+                                        def changedFileVersion = l.replace('<FileVersion>', '').replace('</FileVersion>', '').trim()
+                                        changedFileVersion = changedFileVersion.substring(0, changedFileVersion.lastIndexOf('.'))
+                                        changedFileVersion = '<FileVersion>' + changedFileVersion + '.' + env.BUILD_ID + '</FileVersion>'
+                                        return changedFileVersion
+                                    } 
+                                    else if (l.trim().startsWith('<Version>')) {
+                                        def changedVersion = l.replace('<Version>', '').replace('</Version>', '').trim()
+                                        changedVersion = changedVersion.substring(0, changedVersion.lastIndexOf('.'))
+                                        changedVersion = '<Version>' + changedVersion + '.' + env.BUILD_ID + '</Version>'
+                                        return changedVersion
+                                    }
+                                    else {
+                                        return l;
+                                    }
+                                }.join('\n')
+                                writeFile(file: csprojFile, text: replaced)
+                            }
                         }
                     }
                 }
-                // stage ('Publish services') {
-                //     bat 'dotnet publish .\\Dotnet\\SpamProtector\\SpamProtector.sln --configuration Release'
-                // }
+                stage ('Publish services') {
+                    bat 'dotnet publish .\\Dotnet\\SpamProtector\\SpamProtector.sln --configuration Release'
+                }
             }
         }
     }
