@@ -1,0 +1,13 @@
+﻿CREATE TABLE [dbo].[Log]
+(
+	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY,
+	[Type] NVARCHAR(20) NOT NULL,
+	[CreationTime] DATETIME NOT NULL,
+	[ServiceName] NVARCHAR(50) NOT NULL, 
+    [Branch] NVARCHAR(50) NULL, 
+    [ServiceVersion] NVARCHAR(50) NULL,
+	[Function] NVARCHAR(500) NULL,
+	[Message] NVARCHAR(MAX) NOT NULL,
+	[StackTrace] NVARCHAR(MAX) NULL,
+	[AdditionalData] NVARCHAR(MAX) NULL
+)

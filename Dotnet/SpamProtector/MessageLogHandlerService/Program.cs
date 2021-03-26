@@ -4,13 +4,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using ProtectorLib.Data;
 using ProtectorLib.Configuration;
-using ProtectorLib.Extensions;
+using ProtectorLib.Data;
 
 using System.IO;
 
-namespace DeleteService
+
+namespace MessageLogHandlerService
 {
     public class Program
     {
@@ -36,15 +36,9 @@ namespace DeleteService
                 .ConfigureServices((hostContext, services) =>
                 {
                     services
-                        .AddSingleton(hostContext.Configuration.GetSection("Mailboxes").Get<MailboxesConfig>())
-                        .AddSingleton(hostContext.Configuration.GetSection("Services").Get<ServicesConfig>())
                         .AddSingleton(hostContext.Configuration.GetSection("Messaging").Get<MessagingConfig>())
                         .AddDbContext<SpamProtectorDBContext>(options => options.UseSqlServer(hostContext.Configuration.GetConnectionString("SpamProtectorDBContext")))
-                        .AddMailboxController()
-                        .AddMailboxProviders()
-                        .AddMailboxRequiredClasses()
-                        .AddServiceRunHandlers()
-                        .AddMessagingMechanism()
+                        .AddSingleton<IMessageLogHandler, MessageLogHandler>()
                         .AddHostedService<Worker>();
                 });
     }

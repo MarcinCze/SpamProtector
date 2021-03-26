@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using ProtectorLib.Data;
 using ProtectorLib.Providers;
 
 using System.Collections.Generic;

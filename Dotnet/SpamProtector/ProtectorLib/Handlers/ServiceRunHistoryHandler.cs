@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using ProtectorLib.Data;
 using ProtectorLib.Models.Enums;
 using ProtectorLib.Providers;
 

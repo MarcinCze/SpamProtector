@@ -54,10 +54,11 @@ namespace ProtectorLib.Providers
 
 				foreach (var uid in uids)
 				{
-					var message = await client.Inbox.GetMessageAsync(uid);
+                    var message = await client.Inbox.GetMessageAsync(uid);
 
                     if (await IsSpam(message))
                     {
+                        logger.LogInformation($"Message with UID {uid} is a SPAM");
                         newSpamCounter++;
                         await client.Inbox.MoveToAsync(uid, destinationFolder);
 					}

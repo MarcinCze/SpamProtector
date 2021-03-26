@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using ProtectorLib;
+using ProtectorLib.Data;
 using ProtectorLib.Configuration;
 
 using System.IO;
