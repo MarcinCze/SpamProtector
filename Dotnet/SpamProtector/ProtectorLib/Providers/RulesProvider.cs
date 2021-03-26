@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace ProtectorLib.Providers
 {
@@ -11,14 +12,16 @@ namespace ProtectorLib.Providers
     {
         private enum RuleKind { Domain, Sender, Subject }
 
+        private readonly ILogger<RulesProvider> logger;
         private readonly IServiceScopeFactory serviceScopeFactory;
         private List<Rule> blacklistSubject;
         private List<Rule> blacklistSender;
         private List<Rule> blacklistDomain;
 
-        public RulesProvider(IServiceScopeFactory serviceScopeFactory)
+        public RulesProvider(IServiceScopeFactory serviceScopeFactory, ILogger<RulesProvider> logger)
         {
             this.serviceScopeFactory = serviceScopeFactory;
+            this.logger = logger;
         }
 
         public async Task<bool> IsInSenderBlacklist(string sender)
@@ -71,6 +74,7 @@ namespace ProtectorLib.Providers
 
         private async Task<List<Rule>> LoadRulesAsync(RuleKind type)
         {
+            logger.LogInformation($"Loading rules for {type}");
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();

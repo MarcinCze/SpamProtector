@@ -54,6 +54,7 @@ namespace ProtectorLib.Providers
 
 				var junkFolder = await GetJunkFolderAsync(client);
 				await junkFolder.OpenAsync(FolderAccess.ReadOnly);
+				logger.LogInformation($"Junk folder {junkFolder.FullName} opened");
 				var uids = await junkFolder.SearchAsync(SearchQuery.DeliveredAfter(DeliveredAfterDate));
 
 				var mails = new List<Models.EmailDTO>();
@@ -95,6 +96,7 @@ namespace ProtectorLib.Providers
 
 				var junkFolder = await GetJunkFolderAsync(client);
 				await junkFolder.OpenAsync(FolderAccess.ReadWrite);
+                logger.LogInformation($"Junk folder {junkFolder.FullName} opened");
 				int countBefore = junkFolder.Count;
 
 				if (!messagesToRemove.Any())
@@ -128,6 +130,7 @@ namespace ProtectorLib.Providers
 				messagingService.SendMessages(messagesRemoved.ConvertToDto(dateTimeProvider.CurrentTime));
 
 				await DeleteConfirmationProcessAsync(client, junkFolder);
+                logger.LogInformation("DeleteConfirmationProcess done");
 
 				await client.DisconnectAsync(true);
 				logger.LogInformation("Client disconnected");

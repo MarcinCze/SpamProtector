@@ -3,13 +3,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-
 using ProtectorLib;
 using ProtectorLib.Configuration;
 using ProtectorLib.Extensions;
-
-using System.IO;
 using ProtectorLib.Logger;
+using System.IO;
 
 namespace ScanService
 {
@@ -28,12 +26,15 @@ namespace ScanService
                     var sharedFolder = Path.Combine(hostContext.HostingEnvironment.ContentRootPath, "..", "Shared");
                     config.AddJsonFile(Path.Combine(sharedFolder, "appsettings.json"), optional: true);
                 })
-                .ConfigureLogging(logging =>
+                .ConfigureLogging((hostContext, logging) =>
                 {
                     logging.ClearProviders();
                     logging.AddConsole();
-                    var configuration = new ConfigurationBuilder().Build();
-                    logging.AddProvider(new RabbitMqLoggerProvider(configuration.GetSection("RabbitMQLogging").Get<RabbitMqLoggerConfiguration>()));
+                    logging.AddProvider(
+                        new RabbitMqLoggerProvider(
+                            hostContext.Configuration.GetSection("Messaging").Get<RabbitMqLoggerConfiguration>(),
+                            typeof(Worker).Assembly.GetName().Version?.ToString()
+                        ));
                 })
                 .ConfigureServices((hostContext, services) =>
                 {

@@ -57,6 +57,8 @@ namespace ProtectorLib.Services
             var stopWatch = new Stopwatch();
             await Task.Delay(StartDelay, stoppingToken);
 
+            logger.LogInformation("Starting main function");
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 if (await ShouldItRunAsync())
@@ -79,7 +81,7 @@ namespace ProtectorLib.Services
                     {
                         status = ServiceStatus.ERROR;
                         ServiceResultAdditionalInfo = JsonSerializer.Serialize(new { ex.Message, ex.StackTrace });
-                        logger.LogError(ex, $"{ServiceName} throwed an error of type {ex.GetType()}");
+                        logger.LogError(ex, $"{ServiceName} threw an error of type {ex.GetType()}");
                     }
                     finally
                     {

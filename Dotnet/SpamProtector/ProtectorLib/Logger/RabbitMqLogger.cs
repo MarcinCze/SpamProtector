@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using ProtectorLib.Models;
+using RabbitMQ.Client;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using ProtectorLib.Models;
-using RabbitMQ.Client;
 using System.Text.Json;
 
 namespace ProtectorLib.Logger
@@ -14,11 +13,13 @@ namespace ProtectorLib.Logger
     public class RabbitMqLogger : ILogger
     {
         private readonly string name;
+        private readonly string version;
         private readonly RabbitMqLoggerConfiguration config;
 
-        public RabbitMqLogger(string name, RabbitMqLoggerConfiguration config)
+        public RabbitMqLogger(string name, RabbitMqLoggerConfiguration config, string version)
         {
             this.name = name;
+            this.version = version;
             this.config = config;
         }
 
@@ -28,38 +29,39 @@ namespace ProtectorLib.Logger
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            //if (!IsEnabled(logLevel))
-            //    return;
+            if (!IsEnabled(logLevel))
+                return;
 
-            //if (config.EventId != 0 && config.EventId != eventId.Id)
-            //{
-            //    return;
-            //}
+            if (config.EventId != 0 && config.EventId != eventId.Id)
+                return;
 
-            //LogEntryDTO entryDto = new()
-            //{
-            //    Type = logLevel.ToString().ToUpper(),
-            //    CreationTime = DateTime.Now
-            //};
+            LogEntryDTO entryDto = new()
+            {
+                Type = logLevel.ToString(),
+                ServiceName = name,
+                ServiceVersion = version,
+                CreationTime = DateTime.Now,
+                Message = formatter(state, exception),
+                StackTrace = exception?.StackTrace
+            };
 
-            //if (state is IReadOnlyList<KeyValuePair<string, object>> formattedLogValues)
-            //{
-            //    entryDto.AdditionalParameters = ExtractAdditionalArguments(formattedLogValues);
-            //}
+            if (state is IReadOnlyList<KeyValuePair<string, object>> formattedLogValues)
+            {
+                var items = ExtractAdditionalArguments(formattedLogValues);
 
-            //entryDto.Action = ExtractAction(entryDto.AdditionalParameters);
-            //entryDto.RemoteIp = ExtractRemoteIp(entryDto.AdditionalParameters);
-            //entryDto.HttpMethod = ExtractHttpMethod(entryDto.AdditionalParameters);
+                if (items.Any()) 
+                    entryDto.AdditionalData = JsonSerializer.Serialize(items);
+            }
 
-            //try
-            //{
-            //    //SendMessage(entryDto);
-            //}
-            //catch (Exception)
-            //{ }
+            try
+            {
+                SendMessage(entryDto);
+            }
+            catch (Exception)
+            { }
         }
 
-        private void SendMessage(LogEntryDTO logEntryDTO)
+        private void SendMessage(LogEntryDTO logEntryDto)
         {
             var factory = new ConnectionFactory()
             {
@@ -78,57 +80,24 @@ namespace ProtectorLib.Logger
             channel.BasicPublish(exchange: "",
                      routingKey: config.LogQueueName,
                      basicProperties: props,
-                     body: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(logEntryDTO)));
+                     body: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(logEntryDto)));
         }
 
         private List<string> ExtractAdditionalArguments(IReadOnlyList<KeyValuePair<string, object>> formattedLogValues)
         {
             try
             {
-                var additionalParams = new List<string>();
+                List<string> additionalParams = new();
 
                 FieldInfo fieldInfo = formattedLogValues.GetType().GetField("_values", BindingFlags.NonPublic | BindingFlags.Instance);
 
                 if (fieldInfo == null)
-                    return new List<string>();
+                    return null;
 
                 if (fieldInfo.GetValue(formattedLogValues) is object[] valuesArr)
-                {
                     additionalParams.AddRange(valuesArr.Select(obj => obj.ToString()));
-                }
 
                 return additionalParams;
-            }
-            catch (Exception)
-            {
-                return new List<string>();
-            }
-        }
-
-        private string ExtractRemoteIp(IEnumerable<string> parameters) => ExtractParameter(parameters, "RemoteIp");
-
-        private string ExtractHttpMethod(IEnumerable<string> parameters) => ExtractParameter(parameters, "HttpMethod");
-
-        private string ExtractAction(IEnumerable<string> parameters) => ExtractParameter(parameters, "Action");
-
-        private string ExtractParameter(IEnumerable<string> parameters, string paramName)
-        {
-            try
-            {
-                if (!parameters.Any())
-                    return null;
-
-                string paramLine = parameters.FirstOrDefault(x => x.StartsWith(paramName));
-
-                if (paramLine == null)
-                    return null;
-
-                string[] parts = paramLine.Split('#');
-
-                if (parts.Length != 2)
-                    return null;
-
-                return parts[1];
             }
             catch (Exception)
             {
