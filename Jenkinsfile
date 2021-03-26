@@ -28,6 +28,7 @@ pipeline {
         SP_RABBITMQ_USER        = credentials('SP_RABBITMQ_USER')
         SP_RABBITMQ_PASS        = credentials('SP_RABBITMQ_PASS')
         SP_RABBITMQ_EXCHANGE    = credentials('SP_RABBITMQ_EXCHANGE')
+        SP_RABBITMQ_LOG_QUEUE   = credentials('SP_RABBITMQ_LOG_QUEUE')
         SP_MAILBOX_MAIN_URL     = credentials('SP_MAILBOX_MAIN_URL')
         SP_MAILBOX_MAIN_PORT    = credentials('SP_MAILBOX_MAIN_PORT')
         SP_MAILBOX_MAIN_USER    = credentials('SP_MAILBOX_MAIN_USER')
@@ -84,6 +85,7 @@ pipeline {
                             appSettingsJson['ConnectionStrings']['SpamProtectorDBContext'] = 'Data Source=.;Initial Catalog=SpamProtectorDB;User Id='+SP_DB_USER+';Password='+SP_DB_PASS+';'
                             appSettingsJson['Messaging']['Host'] = SP_RABBITMQ_HOST
                             appSettingsJson['Messaging']['ExchangeName'] = SP_RABBITMQ_EXCHANGE
+                            appSettingsJson['Messaging']['LogQueueName'] = SP_RABBITMQ_LOG_QUEUE
                             appSettingsJson['Messaging']['AccountLogin'] = SP_RABBITMQ_USER
                             appSettingsJson['Messaging']['AccountPassword'] = SP_RABBITMQ_PASS
                             appSettingsJson['Mailboxes']['MainBox']['Url'] = SP_MAILBOX_MAIN_URL
