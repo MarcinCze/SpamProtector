@@ -20,6 +20,7 @@ pipeline {
         booleanParam(name: 'DEPLOY_MARKING_SERVICE', defaultValue: false, description: 'Deploy MarkingService?')
         booleanParam(name: 'DEPLOY_MSG_EMAIL_HANDLER_SERVICE', defaultValue: false, description: 'Deploy MessageEmailHandlerService?')
         booleanParam(name: 'DEPLOY_MSG_SERVICERUN_HANDLER_SERVICE', defaultValue: false, description: 'Deploy MessageServiceRunHandlerService?')
+        booleanParam(name: 'DEPLOY_MSG_LOG_HANDLER_SERVICE', defaultValue: false, description: 'Deploy MessageLogHandlerService?')
     }
     environment {
         SP_DB_USER              = credentials('SP_DB_USER')
@@ -28,6 +29,7 @@ pipeline {
         SP_RABBITMQ_USER        = credentials('SP_RABBITMQ_USER')
         SP_RABBITMQ_PASS        = credentials('SP_RABBITMQ_PASS')
         SP_RABBITMQ_EXCHANGE    = credentials('SP_RABBITMQ_EXCHANGE')
+        SP_RABBITMQ_LOG_QUEUE   = credentials('SP_RABBITMQ_LOG_QUEUE')
         SP_MAILBOX_MAIN_URL     = credentials('SP_MAILBOX_MAIN_URL')
         SP_MAILBOX_MAIN_PORT    = credentials('SP_MAILBOX_MAIN_PORT')
         SP_MAILBOX_MAIN_USER    = credentials('SP_MAILBOX_MAIN_USER')
@@ -73,6 +75,7 @@ pipeline {
                             try { bat 'sc stop SpamProtector-Scan' } catch(ex) {}
                             try { bat 'sc stop SpamProtector-MessageEmailHandler' } catch(ex) {}
                             try { bat 'sc stop SpamProtector-MessageServiceRunHandler' } catch(ex) {}
+                            try { bat 'sc stop SpamProtector-MessageLogHandler' } catch(ex) {}
                         }
                     }
                 }
@@ -84,6 +87,7 @@ pipeline {
                             appSettingsJson['ConnectionStrings']['SpamProtectorDBContext'] = 'Data Source=.;Initial Catalog=SpamProtectorDB;User Id='+SP_DB_USER+';Password='+SP_DB_PASS+';'
                             appSettingsJson['Messaging']['Host'] = SP_RABBITMQ_HOST
                             appSettingsJson['Messaging']['ExchangeName'] = SP_RABBITMQ_EXCHANGE
+                            appSettingsJson['Messaging']['LogQueueName'] = SP_RABBITMQ_LOG_QUEUE
                             appSettingsJson['Messaging']['AccountLogin'] = SP_RABBITMQ_USER
                             appSettingsJson['Messaging']['AccountPassword'] = SP_RABBITMQ_PASS
                             appSettingsJson['Mailboxes']['MainBox']['Url'] = SP_MAILBOX_MAIN_URL
@@ -107,7 +111,8 @@ pipeline {
                                 ".\\Dotnet\\SpamProtector\\MarkingService\\MarkingService.csproj",
                                 ".\\Dotnet\\SpamProtector\\ScanService\\ScanService.csproj",
                                 ".\\Dotnet\\SpamProtector\\MessageEmailHandlerService\\MessageEmailHandlerService.csproj",
-                                ".\\Dotnet\\SpamProtector\\MessageServiceRunHandlerService\\MessageServiceRunHandlerService.csproj"
+                                ".\\Dotnet\\SpamProtector\\MessageServiceRunHandlerService\\MessageServiceRunHandlerService.csproj",
+                                ".\\Dotnet\\SpamProtector\\MessageLogHandlerService\\MessageLogHandlerService.csproj"
                             ].each { csprojFile -> 
                                 echo "Changing file: ${csprojFile}"
                                 def fileContent = readFile csprojFile
@@ -165,6 +170,10 @@ pipeline {
                                 bat 'del "C:\\Program Files\\SpamProtector\\MessageServiceRunHandlerService\\*.*" /f /q /s'
                                 bat 'xcopy ".\\Dotnet\\SpamProtector\\MessageServiceRunHandlerService\\bin\\Release\\net5.0\\publish" "C:\\Program Files\\SpamProtector\\MessageServiceRunHandlerService" /E /H /C /I /Y'
                             }
+                            if (params.DEPLOY_MSG_LOG_HANDLER_SERVICE) {
+                                bat 'del "C:\\Program Files\\SpamProtector\\MessageLogHandlerService\\*.*" /f /q /s'
+                                bat 'xcopy ".\\Dotnet\\SpamProtector\\MessageLogHandlerService\\bin\\Release\\net5.0\\publish" "C:\\Program Files\\SpamProtector\\MessageLogHandlerService" /E /H /C /I /Y'
+                            }
                         }
                     }
                 }
@@ -177,6 +186,7 @@ pipeline {
                             try { bat 'sc start SpamProtector-Scan' } catch(ex) {}
                             try { bat 'sc start SpamProtector-MessageEmailHandler' } catch(ex) {}
                             try { bat 'sc start SpamProtector-MessageServiceRunHandler' } catch(ex) {}
+                            try { bat 'sc start SpamProtector-MessageLogHandler' } catch(ex) {}
                         }
                     }
                 }

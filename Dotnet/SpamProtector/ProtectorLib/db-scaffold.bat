@@ -1,1 +1,1 @@
-dotnet ef dbcontext scaffold "Data Source=.;Initial Catalog=SpamProtectorDB;Integrated Security=True" Microsoft.EntityFrameworkCore.SqlServer --force
+dotnet ef dbcontext scaffold "Data Source=.;Initial Catalog=SpamProtectorDB;Integrated Security=True" Microsoft.EntityFrameworkCore.SqlServer --force --context-dir Data --output-dir Data

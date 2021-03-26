@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using ProtectorLib.Data;
+
 namespace ProtectorLib.Handlers
 {
     public interface IMessagesHandler

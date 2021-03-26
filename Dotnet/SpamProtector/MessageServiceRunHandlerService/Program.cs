@@ -4,8 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using ProtectorLib;
 using ProtectorLib.Configuration;
+using ProtectorLib.Data;
 
 using System.IO;
 

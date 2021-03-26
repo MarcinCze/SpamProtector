@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-using ProtectorLib;
+using ProtectorLib.Data;
 using ProtectorLib.Models;
 using ProtectorLib.Models.Enums;
 

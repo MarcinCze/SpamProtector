@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
-namespace ProtectorLib
+namespace ProtectorLib.Data
 {
     public partial class SpamProtectorDBContext : DbContext
     {
@@ -15,6 +17,7 @@ namespace ProtectorLib
         {
         }
 
+        public virtual DbSet<Log> Logs { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<Rule> Rules { get; set; }
         public virtual DbSet<RuleType> RuleTypes { get; set; }
@@ -25,6 +28,29 @@ namespace ProtectorLib
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
+
+            modelBuilder.Entity<Log>(entity =>
+            {
+                entity.ToTable("Log");
+
+                entity.Property(e => e.Branch).HasMaxLength(50);
+
+                entity.Property(e => e.CreationTime).HasColumnType("datetime");
+
+                entity.Property(e => e.Function).HasMaxLength(500);
+
+                entity.Property(e => e.Message).IsRequired();
+
+                entity.Property(e => e.ServiceName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.ServiceVersion).HasMaxLength(50);
+
+                entity.Property(e => e.Type)
+                    .IsRequired()
+                    .HasMaxLength(20);
+            });
 
             modelBuilder.Entity<Message>(entity =>
             {
