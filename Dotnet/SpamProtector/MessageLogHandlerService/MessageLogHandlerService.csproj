@@ -3,8 +3,19 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-MessageLogHandlerService-1FFF2BFC-6CD9-49EA-957E-68361287FAA8</UserSecretsId>
+    <FileVersion>1.5.0.0</FileVersion>
+    <Version>1.5.0.0</Version>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Include="..\Shared\appsettings.Development.json" Link="appsettings.Development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Shared\appsettings.json" Link="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="5.0.1" />
