@@ -9,6 +9,7 @@ using ProtectorLib.Configuration;
 using ProtectorLib.Extensions;
 
 using System.IO;
+using ProtectorLib.Logger;
 
 namespace ScanService
 {
@@ -22,16 +23,17 @@ namespace ScanService
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .UseWindowsService()
-                .ConfigureLogging(logging =>
-                {
-                    logging.ClearProviders();
-                    logging.AddConsole();
-                    logging.AddEventLog();
-                })
                 .ConfigureAppConfiguration((hostContext, config) =>
                 {
                     var sharedFolder = Path.Combine(hostContext.HostingEnvironment.ContentRootPath, "..", "Shared");
                     config.AddJsonFile(Path.Combine(sharedFolder, "appsettings.json"), optional: true);
+                })
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                    var configuration = new ConfigurationBuilder().Build();
+                    logging.AddProvider(new RabbitMqLoggerProvider(configuration.GetSection("RabbitMQLogging").Get<RabbitMqLoggerConfiguration>()));
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
