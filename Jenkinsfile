@@ -112,7 +112,9 @@ pipeline {
                                 ".\\Dotnet\\SpamProtector\\ScanService\\ScanService.csproj",
                                 ".\\Dotnet\\SpamProtector\\MessageEmailHandlerService\\MessageEmailHandlerService.csproj",
                                 ".\\Dotnet\\SpamProtector\\MessageServiceRunHandlerService\\MessageServiceRunHandlerService.csproj",
-                                ".\\Dotnet\\SpamProtector\\MessageLogHandlerService\\MessageLogHandlerService.csproj"
+                                ".\\Dotnet\\SpamProtector\\MessageLogHandlerService\\MessageLogHandlerService.csproj",
+                                ".\\Dotnet\\SpamProtector\\ProtectorLib\\ProtectorLib.csproj",
+                                ".\\Dotnet\\SpamProtector\\ProtectorLib.Models\\ProtectorLib.Models.csproj"
                             ].each { csprojFile -> 
                                 echo "Changing file: ${csprojFile}"
                                 def fileContent = readFile csprojFile

@@ -3,10 +3,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ProtectorLib.Data;
+
 using ProtectorLib.Configuration;
+using ProtectorLib.Data;
 using ProtectorLib.Extensions;
 using ProtectorLib.Logger;
+
 using System.IO;
 
 namespace ScanService
