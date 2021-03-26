@@ -1,5 +1,6 @@
 ﻿using MailKit;
 
+using ProtectorLib.Data;
 using ProtectorLib.Models;
 
 using System;

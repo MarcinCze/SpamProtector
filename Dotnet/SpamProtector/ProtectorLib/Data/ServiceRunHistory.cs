@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 #nullable disable
 
-namespace ProtectorLib
+namespace ProtectorLib.Data
 {
     public partial class ServiceRunHistory
     {

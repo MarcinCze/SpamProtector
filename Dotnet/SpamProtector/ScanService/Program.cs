@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ProtectorLib;
+using ProtectorLib.Data;
 using ProtectorLib.Configuration;
 using ProtectorLib.Extensions;
 using ProtectorLib.Logger;

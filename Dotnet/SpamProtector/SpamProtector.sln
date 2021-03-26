@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageEmailHandlerService"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MessageConsumers", "MessageConsumers", "{C3AD736A-ED38-4EF3-BCF6-AF84AF93F4D5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageLogHandlerService", "MessageLogHandlerService\MessageLogHandlerService.csproj", "{715D73A8-F074-4DA7-B858-CDA52A255F66}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,6 +67,10 @@ Global
 		{0797C43B-3597-4E44-AC36-FD6803A558AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0797C43B-3597-4E44-AC36-FD6803A558AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0797C43B-3597-4E44-AC36-FD6803A558AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{715D73A8-F074-4DA7-B858-CDA52A255F66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{715D73A8-F074-4DA7-B858-CDA52A255F66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{715D73A8-F074-4DA7-B858-CDA52A255F66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{715D73A8-F074-4DA7-B858-CDA52A255F66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +78,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{E18302E8-8858-4C98-985B-49309721D95D} = {C3AD736A-ED38-4EF3-BCF6-AF84AF93F4D5}
 		{0797C43B-3597-4E44-AC36-FD6803A558AA} = {C3AD736A-ED38-4EF3-BCF6-AF84AF93F4D5}
+		{715D73A8-F074-4DA7-B858-CDA52A255F66} = {C3AD736A-ED38-4EF3-BCF6-AF84AF93F4D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F23C4BB3-F756-4227-886A-E31D1D460138}
