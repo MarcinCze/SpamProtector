@@ -37,7 +37,6 @@ namespace ProtectorLib.Services
         protected override void FinishActions()
         {
             controller.SetNextProvider();
-            logger.LogInformation($"FinishAction. New current provider: {controller.CurrentMailboxProvider.MailBoxName}");
         }
     }
 }

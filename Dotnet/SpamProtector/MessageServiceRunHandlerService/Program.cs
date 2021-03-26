@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 
 using ProtectorLib.Configuration;
 using ProtectorLib.Data;
+using ProtectorLib.Logger;
 
 using System.IO;
 
@@ -21,16 +22,20 @@ namespace MessageServiceRunHandlerService
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .UseWindowsService()
-                .ConfigureLogging(logging =>
-                {
-                    logging.ClearProviders();
-                    logging.AddConsole();
-                    logging.AddEventLog();
-                })
                 .ConfigureAppConfiguration((hostContext, config) =>
                 {
                     var sharedFolder = Path.Combine(hostContext.HostingEnvironment.ContentRootPath, "..", "Shared");
                     config.AddJsonFile(Path.Combine(sharedFolder, "appsettings.json"), optional: true);
+                })
+                .ConfigureLogging((hostContext, logging) =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                    logging.AddProvider(
+                        new RabbitMqLoggerProvider(
+                            hostContext.Configuration.GetSection("Messaging").Get<RabbitMqLoggerConfiguration>(),
+                            typeof(Worker).Assembly.GetName().Version?.ToString()
+                        ));
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
