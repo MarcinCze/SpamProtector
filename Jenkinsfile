@@ -53,9 +53,14 @@ pipeline {
                         bat 'dotnet restore .\\Dotnet\\SpamProtector\\SpamProtector.sln'
                     }
                 }
-                stage ('Build project') {
+                stage ('Build') {
                     steps {
                         bat 'dotnet build .\\Dotnet\\SpamProtector\\SpamProtector.sln --configuration Release'
+                    }
+                }
+                stage ('Test') {
+                    steps {
+                        bat 'dotnet test .\\Dotnet\\SpamProtector\\SpamProtector.sln'
                     }
                 }
             }
