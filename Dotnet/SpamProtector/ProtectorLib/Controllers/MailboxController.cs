@@ -1,5 +1,6 @@
 ﻿using ProtectorLib.Providers;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,6 +13,9 @@ namespace ProtectorLib.Controllers
 
         public MailboxController(IEnumerable<IMailboxProvider> mailboxProviders)
         {
+            if (!mailboxProviders.Any())
+                throw new ArgumentOutOfRangeException($"{nameof(mailboxProviders)} cannot be empty");
+
             this.mailboxProviders = mailboxProviders;
             providerIndex = 0;
         }
