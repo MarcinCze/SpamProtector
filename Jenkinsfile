@@ -60,7 +60,7 @@ pipeline {
                 }
                 stage ('Test') {
                     steps {
-                        bat 'dotnet test .\\Dotnet\\SpamProtector\\SpamProtector.sln'
+                        bat 'dotnet test .\\Dotnet\\SpamProtector\\SpamProtector.sln --logger console;verbosity=detailed'
                     }
                 }
             }
