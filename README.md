@@ -15,7 +15,7 @@ trash after given time.
 - MessageServiceRunHandlerService - service responsible for listening RabbitMQ messages which hold information about service run status
 
 ## Architecture
-todo
+![SpamProtector architecture diagram](https://mczernecki.pl/images_others/SpamProtector.svg)
 
 ## Tech Stack
 - .NET 5.0
