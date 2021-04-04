@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
+
 using ProtectorLib.Models;
+
 using RabbitMQ.Client;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

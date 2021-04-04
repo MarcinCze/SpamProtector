@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using ProtectorLib.Data;
@@ -8,10 +9,17 @@ namespace ProtectorLib.Handlers
     public interface IMessagesHandler
     {
         Task MarkForRemovalAsync();
-        Task<int> CatalogMessagesAsync(IEnumerable<Message> messages);
         Task<IEnumerable<Message>> GetMessagesForRemovalAsync(string mailbox);
-        Task MarkMessagesAsRemovedAsync(IEnumerable<int> removedMsgIds);
         Task<IEnumerable<Message>> GetRemovedMessagesForCheckingAsync();
+        
+
+        [Obsolete("IMessagesHandler.CatalogMessagesAsync is obsolete. MessagesService should be used instead")]
+        Task<int> CatalogMessagesAsync(IEnumerable<Message> messages);
+
+        [Obsolete("IMessagesHandler.SetMessagesAsPermamentlyRemovedAsync is obsolete. MessagesService should be used instead")]
         Task SetMessagesAsPermamentlyRemovedAsync(IEnumerable<int> removedMsgsIds);
+
+        [Obsolete("IMessagesHandler.MarkMessagesAsRemovedAsync is obsolete. MessagesService should be used instead")]
+        Task MarkMessagesAsRemovedAsync(IEnumerable<int> removedMsgIds);
     }
 }

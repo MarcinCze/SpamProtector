@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using ProtectorLib.Data;
 using ProtectorLib.Providers;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,27 +24,6 @@ namespace ProtectorLib.Handlers
             this.serviceScopeFactory = serviceScopeFactory;
             this.dateTimeProvider = dateTimeProvider;
             this.logger = logger;
-        }
-
-        public async Task<int> CatalogMessagesAsync(IEnumerable<Message> messages)
-        {
-            int msgInserted = 0;
-            using (var scope = serviceScopeFactory.CreateScope())
-            {
-                dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
-
-                foreach (var msg in messages.Where(m => !MessageExists(m)))
-                {
-                    msg.CatalogTime = dateTimeProvider.CurrentTime;
-                    await dbContext.Messages.AddAsync(msg);
-                    msgInserted++;
-                }
-
-                await dbContext.SaveChangesAsync();
-            }
-
-            dbContext = null;
-            return msgInserted;
         }
 
         public async Task MarkForRemovalAsync()
@@ -78,29 +58,6 @@ namespace ProtectorLib.Handlers
             }
         }
 
-        public async Task MarkMessagesAsRemovedAsync(IEnumerable<int> removedMsgIds)
-        {
-            if (!removedMsgIds.Any())
-                return;
-
-            using (var scope = serviceScopeFactory.CreateScope())
-            {
-                dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
-
-                foreach (var msgId in removedMsgIds)
-                {
-                    var dbMsg = await dbContext.Messages.FirstOrDefaultAsync(x => x.Id == msgId);
-
-                    if (dbMsg == null)
-                        continue;
-
-                    dbMsg.RemoveTime = dateTimeProvider.CurrentTime;
-                }
-
-                await dbContext.SaveChangesAsync();
-            }
-        }
-
         public async Task<IEnumerable<Message>> GetRemovedMessagesForCheckingAsync()
         {
             using (var scope = serviceScopeFactory.CreateScope())
@@ -121,6 +78,33 @@ namespace ProtectorLib.Handlers
             }
         }
 
+        private bool MessageExists(Message message) => dbContext.Messages.Any(x => x.ImapUid == message.ImapUid && x.Sender == message.Sender);
+
+        #region Deprecated methods
+
+        [Obsolete("MessagesHandler.CatalogMessagesAsync is obsolete. MessagesService should be used instead")]
+        public async Task<int> CatalogMessagesAsync(IEnumerable<Message> messages)
+        {
+            int msgInserted = 0;
+            using (var scope = serviceScopeFactory.CreateScope())
+            {
+                dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
+
+                foreach (var msg in messages.Where(m => !MessageExists(m)))
+                {
+                    msg.CatalogTime = dateTimeProvider.CurrentTime;
+                    await dbContext.Messages.AddAsync(msg);
+                    msgInserted++;
+                }
+
+                await dbContext.SaveChangesAsync();
+            }
+
+            dbContext = null;
+            return msgInserted;
+        }
+
+        [Obsolete("MessagesHandler.SetMessagesAsPermamentlyRemovedAsync is obsolete. MessagesService should be used instead")]
         public async Task SetMessagesAsPermamentlyRemovedAsync(IEnumerable<int> removedMsgsIds)
         {
             if (!removedMsgsIds.Any())
@@ -150,6 +134,30 @@ namespace ProtectorLib.Handlers
             }
         }
 
-        private bool MessageExists(Message message) => dbContext.Messages.Any(x => x.ImapUid == message.ImapUid && x.Sender == message.Sender);
+        [Obsolete("MessagesHandler.MarkMessagesAsRemovedAsync is obsolete. MessagesService should be used instead")]
+        public async Task MarkMessagesAsRemovedAsync(IEnumerable<int> removedMsgIds)
+        {
+            if (!removedMsgIds.Any())
+                return;
+
+            using (var scope = serviceScopeFactory.CreateScope())
+            {
+                dbContext = scope.ServiceProvider.GetRequiredService<SpamProtectorDBContext>();
+
+                foreach (var msgId in removedMsgIds)
+                {
+                    var dbMsg = await dbContext.Messages.FirstOrDefaultAsync(x => x.Id == msgId);
+
+                    if (dbMsg == null)
+                        continue;
+
+                    dbMsg.RemoveTime = dateTimeProvider.CurrentTime;
+                }
+
+                await dbContext.SaveChangesAsync();
+            }
+        }
+
+        #endregion Deprecated methods
     }
 }
