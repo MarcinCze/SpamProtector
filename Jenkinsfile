@@ -38,6 +38,14 @@ pipeline {
         SP_MAILBOX_SPAM_PORT    = credentials('SP_MAILBOX_SPAM_PORT')
         SP_MAILBOX_SPAM_USER    = credentials('SP_MAILBOX_SPAM_USER')
         SP_MAILBOX_SPAM_PASS    = credentials('SP_MAILBOX_SPAM_PASS')
+        SP_MAILBOX_ADS_URL      = credentials('SP_MAILBOX_ADS_URL')
+        SP_MAILBOX_ADS_PORT     = credentials('SP_MAILBOX_ADS_PORT')
+        SP_MAILBOX_ADS_USER     = credentials('SP_MAILBOX_ADS_USER')
+        SP_MAILBOX_ADS_PASS     = credentials('SP_MAILBOX_ADS_PASS')
+        SP_MAILBOX_WORK_URL     = credentials('SP_MAILBOX_WORK_URL')
+        SP_MAILBOX_WORK_PORT    = credentials('SP_MAILBOX_WORK_PORT')
+        SP_MAILBOX_WORK_USER    = credentials('SP_MAILBOX_WORK_USER')
+        SP_MAILBOX_WORK_PASS    = credentials('SP_MAILBOX_WORK_PASS')
     }
     stages {
         stage('Develop') {
@@ -53,9 +61,14 @@ pipeline {
                         bat 'dotnet restore .\\Dotnet\\SpamProtector\\SpamProtector.sln'
                     }
                 }
-                stage ('Build project') {
+                stage ('Build') {
                     steps {
                         bat 'dotnet build .\\Dotnet\\SpamProtector\\SpamProtector.sln --configuration Release'
+                    }
+                }
+                stage ('Test') {
+                    steps {
+                        bat 'dotnet test .\\Dotnet\\SpamProtector\\SpamProtector.sln --logger console;verbosity=detailed'
                     }
                 }
             }
@@ -98,6 +111,14 @@ pipeline {
                             appSettingsJson['Mailboxes']['SpamBox']['Port'] = SP_MAILBOX_SPAM_PORT
                             appSettingsJson['Mailboxes']['SpamBox']['UserName'] = SP_MAILBOX_SPAM_USER
                             appSettingsJson['Mailboxes']['SpamBox']['Password'] = SP_MAILBOX_SPAM_PASS
+                            appSettingsJson['Mailboxes']['AdsBox']['Url'] = SP_MAILBOX_ADS_URL
+                            appSettingsJson['Mailboxes']['AdsBox']['Port'] = SP_MAILBOX_ADS_PORT
+                            appSettingsJson['Mailboxes']['AdsBox']['UserName'] = SP_MAILBOX_ADS_USER
+                            appSettingsJson['Mailboxes']['AdsBox']['Password'] = SP_MAILBOX_ADS_PASS
+                            appSettingsJson['Mailboxes']['WorkBox']['Url'] = SP_MAILBOX_WORK_URL
+                            appSettingsJson['Mailboxes']['WorkBox']['Port'] = SP_MAILBOX_WORK_PORT
+                            appSettingsJson['Mailboxes']['WorkBox']['UserName'] = SP_MAILBOX_WORK_USER
+                            appSettingsJson['Mailboxes']['WorkBox']['Password'] = SP_MAILBOX_WORK_PASS
                             writeJSON file: '.\\Dotnet\\SpamProtector\\Shared\\appsettings.json', json: appSettingsJson, pretty: 4
                         }
                     }
