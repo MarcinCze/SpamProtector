@@ -38,6 +38,10 @@ pipeline {
         SP_MAILBOX_SPAM_PORT    = credentials('SP_MAILBOX_SPAM_PORT')
         SP_MAILBOX_SPAM_USER    = credentials('SP_MAILBOX_SPAM_USER')
         SP_MAILBOX_SPAM_PASS    = credentials('SP_MAILBOX_SPAM_PASS')
+        SP_MAILBOX_ADS_URL      = credentials('SP_MAILBOX_ADS_URL')
+        SP_MAILBOX_ADS_PORT     = credentials('SP_MAILBOX_ADS_PORT')
+        SP_MAILBOX_ADS_USER     = credentials('SP_MAILBOX_ADS_USER')
+        SP_MAILBOX_ADS_PASS     = credentials('SP_MAILBOX_ADS_PASS')
     }
     stages {
         stage('Develop') {
@@ -103,6 +107,10 @@ pipeline {
                             appSettingsJson['Mailboxes']['SpamBox']['Port'] = SP_MAILBOX_SPAM_PORT
                             appSettingsJson['Mailboxes']['SpamBox']['UserName'] = SP_MAILBOX_SPAM_USER
                             appSettingsJson['Mailboxes']['SpamBox']['Password'] = SP_MAILBOX_SPAM_PASS
+                            appSettingsJson['Mailboxes']['AdsBox']['Url'] = SP_MAILBOX_ADS_URL
+                            appSettingsJson['Mailboxes']['AdsBox']['Port'] = SP_MAILBOX_ADS_PORT
+                            appSettingsJson['Mailboxes']['AdsBox']['UserName'] = SP_MAILBOX_ADS_USER
+                            appSettingsJson['Mailboxes']['AdsBox']['Password'] = SP_MAILBOX_ADS_PASS
                             writeJSON file: '.\\Dotnet\\SpamProtector\\Shared\\appsettings.json', json: appSettingsJson, pretty: 4
                         }
                     }
